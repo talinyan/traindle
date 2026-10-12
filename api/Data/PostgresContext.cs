@@ -15,6 +15,10 @@ public class PostgresContext : DbContext
     public DbSet<Section> Sections => Set<Section>();
     public DbSet<SectionLine> SectionLines => Set<SectionLine>();
 
+    public DbSet<GameSystem> GameSystems => Set<GameSystem>();
+    public DbSet<GameLine> GameLines => Set<GameLine>();
+    public DbSet<DailyPuzzle> DailyPuzzles => Set<DailyPuzzle>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         b.Entity<City>(e =>
@@ -48,7 +52,6 @@ public class PostgresContext : DbContext
                 .WithMany(c => c.Lines)
                 .HasForeignKey(l => l.CityId);
 
-            // FK column is SystemId, not TransportSystemId, so this must be explicit
             e.HasOne(l => l.TransportSystem)
                 .WithMany(s => s.Lines)
                 .HasForeignKey(l => l.SystemId);
@@ -113,6 +116,29 @@ public class PostgresContext : DbContext
             e.HasOne(l => l.City)
                 .WithMany(c => c.SectionLine)
                 .HasForeignKey(l => l.CityId);
+        });
+
+        b.Entity<GameSystem>(e =>
+        {
+            e.ToTable("game_systems");
+            e.Property(s => s.Id).ValueGeneratedNever();
+        });
+
+        b.Entity<GameLine>(e =>
+        {
+            e.ToTable("game_lines");
+            e.Property(l => l.Id).ValueGeneratedNever();
+
+            e.HasOne(l => l.System)
+                .WithMany(s => s.Lines)
+                .HasForeignKey(l => l.SystemId);
+        });
+
+        b.Entity<DailyPuzzle>(e =>
+        {
+            e.ToTable("daily_puzzles");
+            e.HasKey(p => new { p.Date, p.Game });
+            e.Property(p => p.Game).HasConversion<string>();
         });
     }
 }

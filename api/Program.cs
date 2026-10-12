@@ -21,6 +21,7 @@ builder.Services.AddHttpClient<CitylinesIngestionService>(c =>
     c.Timeout = TimeSpan.FromMinutes(5);
     c.DefaultRequestHeaders.UserAgent.ParseAdd("Traindle/0.1");
 });
+builder.Services.AddScoped<GameDataService>();
 
 builder.Services.AddCors(o => o.AddPolicy("www", p =>
     p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
@@ -40,6 +41,12 @@ if (args.Contains("ingest"))
         .IngestAllAsync();
     foreach (var (name, ct) in counts)
         Console.WriteLine($"{name}: {ct}");
+
+    var (systems, lines) = await scope.ServiceProvider
+            .GetRequiredService<GameDataService>()
+            .ProcessAsync();
+    Console.WriteLine($"GameSystems: {systems}");
+    Console.WriteLine($"GameLines: {lines}");
     return;
 }
 
