@@ -22,6 +22,7 @@ builder.Services.AddHttpClient<CitylinesIngestionService>(c =>
     c.DefaultRequestHeaders.UserAgent.ParseAdd("Traindle/0.1");
 });
 builder.Services.AddScoped<GameDataService>();
+builder.Services.AddScoped<DailyGameService>();
 
 builder.Services.AddCors(o => o.AddPolicy("www", p =>
     p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
