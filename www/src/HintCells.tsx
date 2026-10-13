@@ -47,39 +47,47 @@ export function WinBanner({ guessCount, onReset }: { guessCount: number; onReset
   );
 }
 
+const DIRECTIONS = [
+  { label: "N", name: "North" },
+  { label: "NE", name: "Northeast" },
+  { label: "E", name: "East" },
+  { label: "SE", name: "Southeast" },
+  { label: "S", name: "South" },
+  { label: "SW", name: "Southwest" },
+  { label: "W", name: "West" },
+  { label: "NW", name: "Northwest" }
+];
+
+export function bearingToDirection(bearing: number) {
+  const normalized = ((bearing % 360) + 360) % 360; // handles negatives and values > 360
+  const index = Math.round(normalized / 45) % 8; // 337.5°+ wraps back to N
+  return { ...DIRECTIONS[index], degrees: index * 45 };
+}
+
 export function LocationCell({
   correct,
-  km
-  //   bearing
+  km,
+  bearing
 }: {
   correct: boolean;
   km: number | null | undefined;
-  //   bearing: number | null | undefined;
+  bearing: number | null | undefined;
 }) {
+  const dir = bearing != null ? bearingToDirection(bearing) : null;
+
   return (
     <Cell correct={correct || km === 0}>
       {km == null ? (
         <span className="text-secondary">?</span>
       ) : km === 0 ? (
-        <Check size={14} className="mx-auto text-neon" />
+        <Check size={14} className="mx-auto text-neon" aria-label="same place" />
       ) : (
-        <span className="text-primary">{km.toLocaleString()} km</span>
+        <span className="inline-flex items-center gap-1 text-primary">
+          {km.toLocaleString()} km
+          {dir && <span title={dir.name}>({dir.label})</span>}
+        </span>
       )}
     </Cell>
-    // <Cell correct={correct || km === 0}>
-    //   {km == null ? (
-    //     <span className="text-secondary">?</span>
-    //   ) : km === 0 ? (
-    //     <Check size={14} className="mx-auto text-neon" aria-label="same place" />
-    //   ) : (
-    //     <span className="inline-flex items-center gap-1 text-primary">
-    //       {km.toLocaleString()} km
-    //       {bearing != null && (
-    //         <ArrowUp size={14} style={{ transform: `rotate(${bearing}deg)` }} aria-label={`${bearing}° from north`} />
-    //       )}
-    //     </span>
-    //   )}
-    // </Cell>
   );
 }
 
