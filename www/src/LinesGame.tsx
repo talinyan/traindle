@@ -105,7 +105,8 @@ function LineGuessRow({ guess, line }: { guess: LineGuess; line: GameLineOption 
       </Cell>
 
       {/* Location */}
-      <LocationCell correct={guess.correct} km={guess.distanceKm} bearing={guess.bearing} />
+      {/* <LocationCell correct={guess.correct} km={guess.distanceKm} bearing={guess.bearing} /> */}
+      <LocationCell correct={guess.correct} km={guess.distanceKm} />
 
       {/* Length */}
       <CompareCell result={guess.length}>{(line.length / 1000).toFixed(1)} km</CompareCell>
