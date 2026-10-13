@@ -71,6 +71,7 @@ export default function LinesGame() {
                 <th className="font-normal">Location</th>
                 <th className="font-normal">Length</th>
                 <th className="font-normal">Stations</th>
+                <th className="font-normal">Opened</th>
                 <th className="font-normal">Mode</th>
               </tr>
             </thead>
@@ -91,6 +92,8 @@ export default function LinesGame() {
 
 // One row of the table: the guessed line's values, coloured by how close they are
 function LineGuessRow({ guess, line }: { guess: LineGuess; line: GameLineOption }) {
+  console.log(guess, line);
+
   return (
     <tr>
       {/* Line */}
@@ -113,6 +116,9 @@ function LineGuessRow({ guess, line }: { guess: LineGuess; line: GameLineOption 
 
       {/* Station ct*/}
       <CompareCell result={guess.stationCount}>{line.stationCount}</CompareCell>
+
+      {/* Opening year */}
+      <CompareCell result={guess.openingYear}>{line.openingYear}</CompareCell>
 
       {/* Mode */}
       <Cell correct={guess.modeCorrect}>

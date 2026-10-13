@@ -76,7 +76,7 @@ public record GameLineResponse(
 // Limited doc for autocomplete
 public record GameLineOption(
     int Id, string Name, string? Colour, string Mode, int StationCount, int Length,
-    int SystemId, string SystemName, string City, string? Country);
+    int OpeningYear, int SystemId, string SystemName, string City, string? Country);
 
 public record DailyPuzzleResponse(DateOnly Date, int PuzzleNumber);
 
@@ -94,4 +94,4 @@ public record SystemGuessResponse(
 public record LineGuessResponse(
     int GuessId, bool Correct,
     double? DistanceKm, double? Bearing,      // between the two lines' cities, same as for systems
-    bool ModeCorrect, Comparison Length, Comparison StationCount);
+    bool ModeCorrect, Comparison OpeningYear, Comparison Length, Comparison StationCount);

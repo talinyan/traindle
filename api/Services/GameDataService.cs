@@ -214,7 +214,7 @@ public partial class GameDataService
         _db.GameLines
             .OrderBy(l => l.Name)
             .Select(l => new GameLineOption(
-                l.Id, l.Name, l.Colour, l.Mode, l.StationCount, l.Length,
+                l.Id, l.Name, l.Colour, l.Mode, l.StationCount, l.Length, l.OpeningYear,
                 l.SystemId, l.System!.Name, l.System.City, l.System.Country))
             .ToListAsync();
 

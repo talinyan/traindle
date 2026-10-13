@@ -49,6 +49,7 @@ export interface GameLineOption {
   mode: string;
   stationCount: number;
   length: number; // metres
+  openingYear: number;
   systemId: number;
   systemName: string;
   city: string;
@@ -70,13 +71,7 @@ export interface SystemSummary {
   continent: Continent | null;
 }
 
-export type Continent =
-  | "Africa"
-  | "Asia"
-  | "Europe"
-  | "North America"
-  | "South America"
-  | "Oceania";
+export type Continent = "Africa" | "Asia" | "Europe" | "North America" | "South America" | "Oceania";
 
 export type GameKind = "systems" | "lines";
 
@@ -106,6 +101,7 @@ export interface LineGuess {
   correct: boolean;
   distanceKm: number | null;
   bearing: number | null;
+  openingYear: Comparison;
   modeCorrect: boolean;
   length: Comparison;
   stationCount: Comparison;

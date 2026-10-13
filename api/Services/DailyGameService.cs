@@ -79,6 +79,7 @@ public class DailyGameService
             guess.Id, guess.Id == answer.Id,
             distance, bearing,
             guess.Mode == answer.Mode,
+            Compare(answer.OpeningYear, guess.OpeningYear),
             Compare(answer.Length, guess.Length),
             Compare(answer.StationCount, guess.StationCount));
     }
