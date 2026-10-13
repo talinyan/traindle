@@ -43,7 +43,7 @@ export default function LinesGame() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Traindle #{game.puzzle.puzzleNumber}</h1>
+      <h1 className="text-2xl font-semibold">Traindle Lines: Day #{game.puzzle.puzzleNumber}</h1>
 
       {game.error && <p className="text-sm text-red-400">{game.error}</p>}
 
