@@ -1,0 +1,102 @@
+import type { ReactNode } from "react";
+import type { Comparison } from "./api/types";
+import { ArrowDown, ArrowUp, Check } from "lucide-react";
+
+export function Cell({
+  correct,
+  children,
+  align
+}: {
+  correct: boolean;
+  children: ReactNode;
+  align?: "left" | "center";
+}) {
+  const colour = correct ? "border-neon bg-neon/10" : "border-border bg-white/5";
+  const alignment = align === "left" ? "text-left" : "text-center";
+
+  return <td className={`rounded-md border px-2 py-2 ${colour} ${alignment}`}>{children}</td>;
+}
+
+export function CompareCell({ result, children }: { result: Comparison; children: ReactNode }) {
+  return (
+    <Cell correct={result === "Equal"}>
+      <span className="inline-flex items-center gap-1 text-primary">
+        {children}
+        {result === "Higher" && <ArrowUp size={14} />}
+        {result === "Lower" && <ArrowDown size={14} />}
+        {result === "Equal" && <Check size={14} className="text-neon" />}
+      </span>
+    </Cell>
+  );
+}
+
+export function WinBanner({ guessCount, onReset }: { guessCount: number; onReset: () => void }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neon/40 bg-neon/10 px-4 py-3">
+      <p className="text-primary">
+        You got it in {guessCount} {guessCount === 1 ? "guess" : "guesses"}!
+      </p>
+      <button
+        type="button"
+        onClick={onReset}
+        className="rounded-md border border-border bg-white/5 px-3 py-1.5 text-sm text-primary hover:border-neon cursor-pointer"
+      >
+        Play again
+      </button>
+    </div>
+  );
+}
+
+export function LocationCell({
+  correct,
+  km,
+  bearing
+}: {
+  correct: boolean;
+  km: number | null | undefined;
+  bearing: number | null | undefined;
+}) {
+  return (
+    <Cell correct={correct || km === 0}>
+      {km == null ? (
+        <span className="text-secondary">?</span>
+      ) : km === 0 ? (
+        <Check size={14} className="mx-auto text-neon" />
+      ) : (
+        <span className="text-primary">{km.toLocaleString()} km</span>
+      )}
+    </Cell>
+    // <Cell correct={correct || km === 0}>
+    //   {km == null ? (
+    //     <span className="text-secondary">?</span>
+    //   ) : km === 0 ? (
+    //     <Check size={14} className="mx-auto text-neon" aria-label="same place" />
+    //   ) : (
+    //     <span className="inline-flex items-center gap-1 text-primary">
+    //       {km.toLocaleString()} km
+    //       {bearing != null && (
+    //         <ArrowUp size={14} style={{ transform: `rotate(${bearing}deg)` }} aria-label={`${bearing}° from north`} />
+    //       )}
+    //     </span>
+    //   )}
+    // </Cell>
+  );
+}
+
+export function Modes({ correct, guessed }: { correct: string[]; guessed: string[] }) {
+  return (
+    <span className="flex flex-wrap justify-center gap-1">
+      {guessed.map((mode) => {
+        const right = correct.includes(mode);
+        return (
+          <span
+            key={mode}
+            className={`rounded px-1.5 py-0.5 text-xs ${right ? "bg-neon/20 text-neon" : "bg-red-500/20 text-red-300"}`}
+          >
+            {mode.replaceAll("_", " ")}
+          </span>
+        );
+      })}
+    </span>
+  );
+}

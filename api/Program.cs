@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Traindle.Data;
@@ -25,7 +26,10 @@ builder.Services.AddScoped<GameDataService>();
 builder.Services.AddScoped<DailyGameService>();
 
 builder.Services.AddCors(o => o.AddPolicy("www", p =>
-    p.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod()));
+{
+    p.WithOrigins("http://localhost:5173", "http://localhost:5174", "https://traindle.talinya.ca")
+     .AllowAnyHeader().AllowAnyMethod();
+}));
 
 // convert enums to string on return
 builder.Services.AddControllers()
@@ -50,6 +54,11 @@ if (args.Contains("ingest"))
     Console.WriteLine($"GameLines: {lines}");
     return;
 }
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseCors("www");
 

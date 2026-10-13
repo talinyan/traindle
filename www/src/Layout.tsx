@@ -23,9 +23,18 @@ export default function Layout() {
             />
             Traindle
           </Link>
+
           <nav className="flex h-full gap-4 sm:gap-7">
             <NavLink to="/" end className={navClass}>
               Home
+            </NavLink>
+
+            <NavLink to="/systems" end className={navClass}>
+              Systems
+            </NavLink>
+
+            <NavLink to="/lines" end className={navClass}>
+              Lines
             </NavLink>
           </nav>
         </div>
