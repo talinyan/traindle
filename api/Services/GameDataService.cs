@@ -1,12 +1,16 @@
 using System.Globalization;
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Traindle.Data;
 
 namespace Traindle.Services;
 
-public class GameDataService
+public partial class GameDataService
 {
+    [GeneratedRegex(@"\s*\(\s*[-–]?\s*\d{4}[^)]*\)\s*$")]
+    private static partial Regex YearSuffix();
+
     private readonly PostgresContext _db;
     private readonly ILogger<GameDataService> _logger;
 
@@ -54,13 +58,16 @@ public class GameDataService
             .ToDictionary(g => g.Key, g => g.Select(sl => sl.SectionId).ToHashSet());
 
         var gameLines = new List<GameLine>();
+        // system id -> its lines with open track this year, whether or not Citylines has their stations
+        var openLineCounts = new Dictionary<int, int>();
         foreach (var line in lines)
         {
             if (string.IsNullOrWhiteSpace(line.Name) || !systems.ContainsKey(line.SystemId))
                 continue;
-            if (!stationsByLine.TryGetValue(line.Id, out var stationIds) || stationIds.Count < 2)
-                continue;
             if (!sectionsByLine.TryGetValue(line.Id, out var sectionIds))
+                continue;
+            openLineCounts[line.SystemId] = openLineCounts.GetValueOrDefault(line.SystemId) + 1;
+            if (!stationsByLine.TryGetValue(line.Id, out var stationIds) || stationIds.Count < 2)
                 continue;
 
             var sections = sectionIds.Select(id => openSections[id]).ToList();
@@ -68,7 +75,7 @@ public class GameDataService
             {
                 Id = line.Id,
                 SystemId = line.SystemId,
-                Name = line.Name,
+                Name = LineName(line.Name),
                 Colour = line.Color,
                 Mode = modes.GetValueOrDefault(line.TransportModeId, "default"),
                 StationCount = stationIds.Count,
@@ -80,6 +87,7 @@ public class GameDataService
 
         var gameSystems = new List<GameSystem>();
         var unmappedCountries = new HashSet<string>();
+        var thinSystems = 0;
         foreach (var group in gameLines.GroupBy(l => l.SystemId))
         {
             // one entry per (line, station), so a station appearing more than once is an interchange
@@ -87,6 +95,12 @@ public class GameDataService
             var distinctStations = stationIds.Distinct().Count();
             if (distinctStations < 3)
                 continue;
+            // Citylines is missing stations for most of this system's open lines, so it would be misrepresented
+            if (group.Count() * 2 < openLineCounts[group.Key])
+            {
+                thinSystems++;
+                continue;
+            }
 
             var system = systems[group.Key];
             var city = cities[system.CityId];
@@ -116,6 +130,9 @@ public class GameDataService
             });
         }
 
+        if (thinSystems > 0)
+            _logger.LogInformation("Skipped {Count} systems missing stations for most of their lines", thinSystems);
+
         var keptSystems = gameSystems.Select(s => s.Id).ToHashSet();
         gameLines.RemoveAll(l => !keptSystems.Contains(l.SystemId));
 
@@ -131,6 +148,16 @@ public class GameDataService
 
         _logger.LogInformation("Processed {Systems} game systems and {Lines} game lines", gameSystems.Count, gameLines.Count);
         return (gameSystems.Count, gameLines.Count);
+    }
+
+    // Drops a trailing year range like "(2017-2025)", "(-2025)" or "(2016-Present)",
+    // then bare identifiers like "1" or "A" -> "Line 1" / "Line A"
+    private static string LineName(string name)
+    {
+        name = YearSuffix().Replace(name, "").Trim();
+        return name.All(char.IsAsciiDigit) || (name.Length == 1 && char.IsLetter(name[0]))
+            ? $"Line {name}"
+            : name;
     }
 
     // "LINESTRING(x y, ...)" pieces -> "MULTILINESTRING((x y, ...), ...)"
