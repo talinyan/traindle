@@ -49,12 +49,12 @@ export function WinBanner({ guessCount, onReset }: { guessCount: number; onReset
 
 export function LocationCell({
   correct,
-  km,
-  bearing
+  km
+  //   bearing
 }: {
   correct: boolean;
   km: number | null | undefined;
-  bearing: number | null | undefined;
+  //   bearing: number | null | undefined;
 }) {
   return (
     <Cell correct={correct || km === 0}>

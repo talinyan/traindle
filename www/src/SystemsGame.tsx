@@ -93,7 +93,8 @@ function SystemGuessRow({ guess, system }: { guess: SystemGuess; system: GameSys
       </Cell>
 
       {/* Location */}
-      <LocationCell correct={guess.correct} km={guess.distanceKm} bearing={guess.bearing} />
+      {/* <LocationCell correct={guess.correct} km={guess.distanceKm} bearing={guess.bearing} /> */}
+      <LocationCell correct={guess.correct} km={guess.distanceKm} />
 
       {/* Length */}
       <CompareCell result={guess.length}>{(system.length / 1000).toFixed(1)} km</CompareCell>
