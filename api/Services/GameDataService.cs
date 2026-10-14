@@ -155,9 +155,12 @@ public partial class GameDataService
     private static string LineName(string name)
     {
         name = YearSuffix().Replace(name, "").Trim();
-        return name.All(char.IsAsciiDigit) || (name.Length == 1 && char.IsLetter(name[0]))
+
+        return name.All(char.IsAsciiDigit)
             ? $"Line {name}"
-            : name;
+            : name.Length == 1 && char.IsLetter(name[0])
+                ? $"{name} Line"
+                : name;
     }
 
     // "LINESTRING(x y, ...)" pieces -> "MULTILINESTRING((x y, ...), ...)"

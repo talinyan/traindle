@@ -34,9 +34,7 @@ export default function GuessInput<T>({
     const q = query.trim().toLowerCase();
     if (!q) return [];
     const guessed = new Set(guessedIds);
-    return options
-      .filter((o) => !guessed.has(getId(o)) && searchText(o).some((t) => t?.toLowerCase().includes(q)))
-      .slice(0, 10);
+    return options.filter((o) => !guessed.has(getId(o)) && searchText(o).some((t) => t?.toLowerCase().includes(q)));
   }, [query, options, guessedIds, getId, searchText]);
 
   async function pick(option: T) {
@@ -61,13 +59,13 @@ export default function GuessInput<T>({
         className='w-full rounded-md border border-border bg-white/5 px-3 py-2 text-primary placeholder:text-muted/60 focus:border-purple focus:outline-none disabled:opacity-60'
       />
       {suggestions.length > 0 && (
-        <ul className='absolute inset-x-0 top-full z-1000 mt-1 overflow-hidden rounded-md border border-border bg-bg shadow-lg'>
+        <ul className='absolute inset-x-0 top-full z-1000 mt-1 max-h-72 overflow-y-auto overscroll-contain rounded-md border border-border bg-bg shadow-lg'>
           {suggestions.map((o) => (
             <li key={getId(o)}>
               <button
                 type='button'
                 onClick={() => pick(o)}
-                className='flex w-full items-baseline justify-between gap-3 px-3 py-2 text-left hover:bg-white/5'
+                className='flex w-full items-baseline justify-between gap-3 px-3 py-2 text-left hover:bg-white/5 cursor-pointer'
               >
                 {renderOption(o)}
               </button>
