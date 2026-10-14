@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import type { DailyPuzzle, GameKind } from "./api/types";
-import { getDaily } from "./api/client";
+import type { DailyPuzzle, GameKind } from "./types";
+import { getDaily } from "./client";
 
 interface BaseGuess {
   guessId: number;

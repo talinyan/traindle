@@ -1,11 +1,11 @@
-import { getLineOptions, guessLine } from "./api/client";
-import GuessInput from "./api/GuessInput";
-import type { GameLineOption, LineGuess } from "./api/types";
-import { useGameState } from "./gameState";
-import { Cell, CompareCell, LocationCell, Modes, WinBanner } from "./HintCells";
+import { getLineOptions, guessLine } from '../api/client';
+import GuessInput from './GuessInput';
+import type { GameLineOption, LineGuess } from '../api/types';
+import { useGameState } from '../api/gameState';
+import { Cell, CompareCell, LocationCell, Modes, WinBanner } from './HintCells';
 
 export default function LinesGame() {
-  const game = useGameState("lines", getLineOptions, guessLine);
+  const game = useGameState('lines', getLineOptions, guessLine);
 
   if (!game.puzzle) {
     if (game.error) return <p>{game.error}</p>;
@@ -23,18 +23,18 @@ export default function LinesGame() {
   ];
 
   const renderOption = (line: GameLineOption) => {
-    let place = line.systemName + ", " + line.city;
+    let place = line.systemName + ', ' + line.city;
     if (line.systemName === line.city) {
       place = line.city;
     }
 
     return (
       <>
-        <span className="flex items-center gap-2 text-primary">
+        <span className='flex items-center gap-2 text-primary'>
           <Swatch colour={line.colour} />
           {line.name}
         </span>
-        <span className="truncate text-xs text-secondary">{place}</span>
+        <span className='truncate text-xs text-secondary'>{place}</span>
       </>
     );
   };
@@ -42,10 +42,10 @@ export default function LinesGame() {
   const newestFirst = [...game.guesses].reverse();
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Traindle Lines: Day #{game.puzzle.puzzleNumber}</h1>
+    <div className='flex flex-col gap-6'>
+      <h1 className='text-2xl font-semibold'>Traindle Lines: Day #{game.puzzle.puzzleNumber}</h1>
 
-      {game.error && <p className="text-sm text-red-400">{game.error}</p>}
+      {game.error && <p className='text-sm text-red-400'>{game.error}</p>}
 
       {game.won ? (
         <WinBanner guessCount={game.guesses.length} onReset={game.resetGuesses} />
@@ -58,21 +58,21 @@ export default function LinesGame() {
           renderOption={renderOption}
           onGuess={game.submitGuess}
           disabled={game.submitting}
-          placeholder="Guess a line, system or city…"
+          placeholder='Guess a line, system or city…'
         />
       )}
 
       {game.guesses.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-160 border-separate border-spacing-1 text-sm">
-            <thead className="text-xs text-secondary">
+        <div className='overflow-x-auto'>
+          <table className='w-full min-w-160 border-separate border-spacing-1 text-sm'>
+            <thead className='text-xs text-secondary'>
               <tr>
-                <th className="text-left font-normal">Line</th>
-                <th className="font-normal">Location</th>
-                <th className="font-normal">Length</th>
-                <th className="font-normal">Stations</th>
-                <th className="font-normal">Opened</th>
-                <th className="font-normal">Mode</th>
+                <th className='text-left font-normal'>Line</th>
+                <th className='font-normal'>Location</th>
+                <th className='font-normal'>Length</th>
+                <th className='font-normal'>Stations</th>
+                <th className='font-normal'>Opened</th>
+                <th className='font-normal'>Mode</th>
               </tr>
             </thead>
             <tbody>
@@ -97,12 +97,12 @@ function LineGuessRow({ guess, line }: { guess: LineGuess; line: GameLineOption 
   return (
     <tr>
       {/* Line */}
-      <Cell correct={guess.correct} align="left">
-        <span className="flex items-center gap-2 text-primary">
+      <Cell correct={guess.correct} align='left'>
+        <span className='flex items-center gap-2 text-primary'>
           <Swatch colour={line.colour} />
           {line.name}
         </span>
-        <span className="block text-xs text-secondary">
+        <span className='block text-xs text-secondary'>
           {line.systemName}, {line.city}
         </span>
       </Cell>
@@ -132,8 +132,8 @@ function Swatch({ colour }: { colour: string | null }) {
   return (
     <span
       aria-hidden
-      className="h-2.5 w-2.5 shrink-0 rounded-full border border-white/20"
-      style={{ background: colour ?? "transparent" }}
+      className='h-2.5 w-2.5 shrink-0 rounded-full border border-white/20'
+      style={{ background: colour ?? 'transparent' }}
     />
   );
 }

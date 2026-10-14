@@ -1,11 +1,11 @@
-import { getSystemOptions, guessSystem } from "./api/client";
-import GuessInput from "./api/GuessInput";
-import type { GameSystemOption, SystemGuess } from "./api/types";
-import { useGameState } from "./gameState";
-import { Cell, CompareCell, LocationCell, Modes, WinBanner } from "./HintCells";
+import { getSystemOptions, guessSystem } from '../api/client';
+import GuessInput from './GuessInput';
+import type { GameSystemOption, SystemGuess } from '../api/types';
+import { useGameState } from '../api/gameState';
+import { Cell, CompareCell, LocationCell, Modes, WinBanner } from './HintCells';
 
 export default function SystemsGame() {
-  const game = useGameState("systems", getSystemOptions, guessSystem);
+  const game = useGameState('systems', getSystemOptions, guessSystem);
 
   if (!game.puzzle) {
     if (game.error) return <p>{game.error}</p>;
@@ -19,13 +19,13 @@ export default function SystemsGame() {
   const renderOption = (system: GameSystemOption) => {
     let place = system.city;
     if (system.country) {
-      place = system.city + ", " + system.country;
+      place = system.city + ', ' + system.country;
     }
 
     return (
       <>
-        <span className="text-primary">{system.name}</span>
-        <span className="truncate text-xs text-secondary">{place}</span>
+        <span className='text-primary'>{system.name}</span>
+        <span className='truncate text-xs text-secondary'>{place}</span>
       </>
     );
   };
@@ -33,10 +33,10 @@ export default function SystemsGame() {
   const newestFirst = [...game.guesses].reverse();
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold">Traindle Systems: Day #{game.puzzle.puzzleNumber}</h1>
+    <div className='flex flex-col gap-6'>
+      <h1 className='text-2xl font-semibold'>Traindle Systems: Day #{game.puzzle.puzzleNumber}</h1>
 
-      {game.error && <p className="text-sm text-red-400">{game.error}</p>}
+      {game.error && <p className='text-sm text-red-400'>{game.error}</p>}
 
       {game.won ? (
         <WinBanner guessCount={game.guesses.length} onReset={game.resetGuesses} />
@@ -49,22 +49,22 @@ export default function SystemsGame() {
           renderOption={renderOption}
           onGuess={game.submitGuess}
           disabled={game.submitting}
-          placeholder="Guess a system, city or country…"
+          placeholder='Guess a system, city or country…'
         />
       )}
 
       {game.guesses.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-160 border-separate border-spacing-1 text-sm">
-            <thead className="text-xs text-secondary">
+        <div className='overflow-x-auto'>
+          <table className='w-full min-w-160 border-separate border-spacing-1 text-sm'>
+            <thead className='text-xs text-secondary'>
               <tr>
-                <th className="text-left font-normal">System</th>
-                <th className="font-normal">Location</th>
-                <th className="font-normal">Length</th>
-                <th className="font-normal">Lines</th>
-                <th className="font-normal">Stations</th>
-                <th className="font-normal">Opened</th>
-                <th className="font-normal">Modes</th>
+                <th className='text-left font-normal'>System</th>
+                <th className='font-normal'>Location</th>
+                <th className='font-normal'>Length</th>
+                <th className='font-normal'>Lines</th>
+                <th className='font-normal'>Stations</th>
+                <th className='font-normal'>Opened</th>
+                <th className='font-normal'>Modes</th>
               </tr>
             </thead>
             <tbody>
@@ -87,9 +87,9 @@ function SystemGuessRow({ guess, system }: { guess: SystemGuess; system: GameSys
   return (
     <tr>
       {/* System */}
-      <Cell correct={guess.correct} align={"left"}>
-        <span className="text-primary">{system.name}</span>
-        <span className="block text-xs text-secondary">{system.city}</span>
+      <Cell correct={guess.correct} align={'left'}>
+        <span className='text-primary'>{system.name}</span>
+        <span className='block text-xs text-secondary'>{system.city}</span>
       </Cell>
 
       {/* Location */}
@@ -108,7 +108,7 @@ function SystemGuessRow({ guess, system }: { guess: SystemGuess; system: GameSys
       <CompareCell result={guess.openingYear}>{system.openingYear}</CompareCell>
 
       {/* Modes */}
-      <Cell correct={guess.modeMatch === "Exact"}>
+      <Cell correct={guess.modeMatch === 'Exact'}>
         <Modes correct={guess.correctModes} guessed={system.modes} />
       </Cell>
     </tr>

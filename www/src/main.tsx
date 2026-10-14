@@ -1,22 +1,24 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router";
-import "./index.css";
-import App from "./App.tsx";
-import Layout from "./Layout.tsx";
-import SystemsGame from "./SystemsGame.tsx";
-import LinesGame from "./LinesGame.tsx";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Route, Routes } from 'react-router';
+import './index.css';
+import App from './App.tsx';
+import Layout from './components/Layout.tsx';
+import SystemsGame from './components/SystemsGame.tsx';
+import LinesGame from './components/LinesGame.tsx';
+import ChangeLog from './components/ChangeLog.tsx';
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route element={<Layout />}>
-          <Route path="/" element={<App />} />
-          <Route path="/systems" element={<SystemsGame />} />
-          <Route path="/lines" element={<LinesGame />} />
+          <Route path='/' element={<App />} />
+          <Route path='/systems' element={<SystemsGame />} />
+          <Route path='/lines' element={<LinesGame />} />
+          <Route path='/changelog' element={<ChangeLog />} />
         </Route>
       </Routes>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 );
