@@ -1,6 +1,3 @@
-using System.Globalization;
-using System.Linq.Expressions;
-using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Traindle.Data;
 
@@ -8,8 +5,7 @@ namespace Traindle.Services;
 
 public partial class GameDataService
 {
-    [GeneratedRegex(@"\s*\(\s*[-–]?\s*\d{4}[^)]*\)\s*$")]
-    private static partial Regex YearSuffix();
+
 
     private readonly PostgresContext _db;
     private readonly ILogger<GameDataService> _logger;
@@ -21,7 +17,6 @@ public partial class GameDataService
     }
 
     // Rebuilds game_systems and game_lines from the raw Citylines tables, keeping only what is open this year.
-    // Citylines uses 0/-1/null for an unknown opening year and 999999 for "never closed".
     public async Task<(int Systems, int Lines)> ProcessAsync()
     {
         var year = DateTime.UtcNow.Year;
@@ -75,13 +70,13 @@ public partial class GameDataService
             {
                 Id = line.Id,
                 SystemId = line.SystemId,
-                Name = LineName(line.Name),
+                Name = GameExtensions.LineName(line.Name),
                 Colour = line.Color,
                 Mode = modes.GetValueOrDefault(line.TransportModeId, "default"),
                 StationCount = stationIds.Count,
                 Length = sections.Sum(s => s.Length),
                 OpeningYear = stationIds.Select(id => openStations[id]).Concat(sections.Select(s => s.Opening)).Min(),
-                Geometry = ToMultiLineString(sections.Select(s => s.Geometry)),
+                Geometry = GameExtensions.ToMultiLineString(sections.Select(s => s.Geometry)),
             });
         }
 
@@ -95,6 +90,7 @@ public partial class GameDataService
             var distinctStations = stationIds.Distinct().Count();
             if (distinctStations < 3)
                 continue;
+
             // Citylines is missing stations for most of this system's open lines, so it would be misrepresented
             if (group.Count() * 2 < openLineCounts[group.Key])
             {
@@ -104,7 +100,7 @@ public partial class GameDataService
 
             var system = systems[group.Key];
             var city = cities[system.CityId];
-            var (lat, lng) = ParsePoint(city.Coords);
+            var (lat, lng) = GameExtensions.ParsePoint(city.Coords);
             var (country, continent) = CountryInfo.Resolve(city.Country);
             if (continent == null && country != null && unmappedCountries.Add(country))
                 _logger.LogWarning("No continent mapped for country {Country}", country);
@@ -150,61 +146,6 @@ public partial class GameDataService
         return (gameSystems.Count, gameLines.Count);
     }
 
-    // Drops a trailing year range like "(2017-2025)", "(-2025)" or "(2016-Present)",
-    // then bare identifiers like "1" or "A" -> "Line 1" / "Line A"
-    private static string LineName(string name)
-    {
-        name = YearSuffix().Replace(name, "").Trim();
-
-        return name.All(char.IsAsciiDigit)
-            ? $"Line {name}"
-            : name.Length == 1 && char.IsLetter(name[0])
-                ? $"{name} Line"
-                : name;
-    }
-
-    // "LINESTRING(x y, ...)" pieces -> "MULTILINESTRING((x y, ...), ...)"
-    private static string ToMultiLineString(IEnumerable<string?> lineStrings)
-    {
-        var parts = lineStrings
-            .OfType<string>()
-            .Where(g => g.Contains('(') && !g.Contains("EMPTY"))
-            .Select(g => g[g.IndexOf('(')..]);
-        return $"MULTILINESTRING({string.Join(",", parts)})";
-    }
-
-    // "POINT(lng lat)" -> (lat, lng)
-    private static (double? Lat, double? Lng) ParsePoint(string? wkt)
-    {
-        if (string.IsNullOrWhiteSpace(wkt) || !wkt.StartsWith("POINT("))
-            return (null, null);
-
-        var coords = wkt["POINT(".Length..^1].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (coords.Length < 2
-            || !double.TryParse(coords[0], CultureInfo.InvariantCulture, out var lng)
-            || !double.TryParse(coords[1], CultureInfo.InvariantCulture, out var lat))
-            return (null, null);
-
-        return (lat, lng);
-    }
-
-    // Projected into response records: avoids the System <-> Lines cycle and leaves line geometry out of the system list
-    private static readonly Expression<Func<GameSystem, GameSystemResponse>> ToSystemResponse = s =>
-        new GameSystemResponse(
-            s.Id, s.Name, s.City, s.Country, s.CountryState, s.Continent,
-            s.Latitude, s.Longitude, s.Modes,
-            s.LineCount, s.StationCount, s.InterchangeCount, s.Length, s.OpeningYear,
-            s.Lines.OrderBy(l => l.Name)
-                .Select(l => new GameLineSummary(l.Id, l.Name, l.Colour, l.Mode))
-                .ToList());
-
-    private static readonly Expression<Func<GameLine, GameLineResponse>> ToLineResponse = l =>
-        new GameLineResponse(
-            l.Id, l.Name, l.Colour, l.Mode,
-            l.StationCount, l.Length, l.OpeningYear, l.Geometry,
-            l.SystemId,
-            new GameSystemSummary(l.System!.Id, l.System.Name, l.System.City, l.System.Country, l.System.Continent));
-
     public Task<List<GameSystemOption>> GetGameSystemOptionsAsync() =>
         _db.GameSystems
             .OrderBy(s => s.Name)
@@ -222,8 +163,54 @@ public partial class GameDataService
             .ToListAsync();
 
     public Task<GameSystemResponse?> GetGameSystemAsync(int id) =>
-        _db.GameSystems.Where(s => s.Id == id).Select(ToSystemResponse).FirstOrDefaultAsync();
+        _db.GameSystems.Where(s => s.Id == id).Select(GameExtensions.ToSystemResponse).FirstOrDefaultAsync();
 
     public Task<GameLineResponse?> GetGameLineAsync(int id) =>
-        _db.GameLines.Where(l => l.Id == id).Select(ToLineResponse).FirstOrDefaultAsync();
+        _db.GameLines.Where(l => l.Id == id).Select(GameExtensions.ToLineResponse).FirstOrDefaultAsync();
+
+    public async Task<SystemGuessResponse?> GuessSystemAsync(int guessId, GameSystem answer)
+    {
+        var guess = await _db.GameSystems.AsNoTracking().FirstOrDefaultAsync(l => l.Id == guessId);
+        if (guess == null)
+            return null;
+
+        var (distance, bearing) = GameExtensions.DistanceAndBearing(guess, answer);
+        var correctModes = guess.Modes.Intersect(answer.Modes).Order().ToList();
+        var modeMatch = correctModes.Count == 0 ? ModeMatch.None
+            : guess.Modes.ToHashSet().SetEquals(answer.Modes) ? ModeMatch.Exact
+            : ModeMatch.Partial;
+
+        return new SystemGuessResponse(
+            guess.Id, guess.Id == answer.Id,
+            GameExtensions.Compare(answer.LineCount, guess.LineCount), distance, bearing,
+            GameExtensions.Compare(answer.OpeningYear, guess.OpeningYear),
+            GameExtensions.Compare(answer.Length, guess.Length),
+            GameExtensions.Compare(answer.StationCount, guess.StationCount),
+            modeMatch, correctModes);
+    }
+
+    public async Task<LineGuessResponse?> GuessLineAsync(int guessId, GameLine answer)
+    {
+        var guess = await _db.GameLines.AsNoTracking().FirstOrDefaultAsync(l => l.Id == guessId);
+        if (guess == null)
+            return null;
+
+        // Lines have no location of their own, so measure between their systems' cities
+        var systems = await _db.GameSystems.AsNoTracking()
+            .Where(s => s.Id == guess.SystemId || s.Id == answer.SystemId)
+            .ToDictionaryAsync(s => s.Id);
+
+        var (distance, bearing) = systems.TryGetValue(guess.SystemId, out var guessSystem)
+                                  && systems.TryGetValue(answer.SystemId, out var answerSystem)
+            ? GameExtensions.DistanceAndBearing(guessSystem, answerSystem)
+            : (null, null);
+
+        return new LineGuessResponse(
+            guess.Id, guess.Id == answer.Id,
+            distance, bearing,
+            guess.Mode == answer.Mode,
+            GameExtensions.Compare(answer.OpeningYear, guess.OpeningYear),
+            GameExtensions.Compare(answer.Length, guess.Length),
+            GameExtensions.Compare(answer.StationCount, guess.StationCount));
+    }
 }

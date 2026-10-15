@@ -4,13 +4,11 @@ using Traindle.Services;
 
 namespace Traindle.Controllers;
 
-// Daily puzzles. `date` is the player's local date (yyyy-MM-dd) so the puzzle rolls over at their midnight.
-// Comparison hints say how the answer relates to the guess (Higher, Lower, Equal)
 [Route("api/[controller]")]
 [ApiController]
-public class GameController : ControllerBase
+public class DailyGameController : ControllerBase
 {
-    public GameController(DailyGameService daily)
+    public DailyGameController(DailyGameService daily)
     {
         _daily = daily;
     }
@@ -22,7 +20,7 @@ public class GameController : ControllerBase
         OkOrNotFound(await _daily.GetDailyAsync(GameKind.Systems, date));
 
     [HttpPost("systems/guess")]
-    public async Task<IActionResult> GuessSystem(SystemGuessRequest req) =>
+    public async Task<IActionResult> GuessSystem(SystemDailyGuessRequest req) =>
         OkOrNotFound(await _daily.GuessSystemAsync(req.Date, req.SystemId));
 
     [HttpGet("systems/reveal")]
@@ -34,7 +32,7 @@ public class GameController : ControllerBase
         OkOrNotFound(await _daily.GetDailyAsync(GameKind.Lines, date));
 
     [HttpPost("lines/guess")]
-    public async Task<IActionResult> GuessLine(LineGuessRequest req) =>
+    public async Task<IActionResult> GuessLine(LineDailyGuessRequest req) =>
         OkOrNotFound(await _daily.GuessLineAsync(req.Date, req.LineId));
 
     [HttpGet("lines/reveal")]

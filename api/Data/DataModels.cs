@@ -2,6 +2,9 @@ using CsvHelper.Configuration.Attributes;
 
 namespace Traindle.Data;
 
+// 0/-1/null -> unknown opening year
+// 999999 -> never closed
+
 public class City
 {
     [Name("id")] public int Id { get; set; }

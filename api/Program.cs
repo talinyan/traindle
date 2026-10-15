@@ -24,6 +24,10 @@ builder.Services.AddHttpClient<CitylinesIngestionService>(c =>
 });
 builder.Services.AddScoped<GameDataService>();
 builder.Services.AddScoped<DailyGameService>();
+builder.Services.AddScoped<RandomGameService>();
+builder.Services.AddScoped<DailyPuzzleGenerationService>();
+if (!args.Contains("ingest") && !args.Contains("generate-daily"))
+    builder.Services.AddHostedService<DailyPuzzleGenerator>();
 
 builder.Services.AddCors(o => o.AddPolicy("www", p =>
 {
@@ -52,6 +56,17 @@ if (args.Contains("ingest"))
             .ProcessAsync();
     Console.WriteLine($"GameSystems: {systems}");
     Console.WriteLine($"GameLines: {lines}");
+    return;
+}
+
+// CLI mode: `dotnet run -- generate-daily` to create any missing daily puzzles (also runs hourly in the server)
+if (args.Contains("generate-daily"))
+{
+    using var scope = app.Services.CreateScope();
+    var created = await scope.ServiceProvider
+        .GetRequiredService<DailyPuzzleGenerationService>()
+        .EnsurePuzzlesAsync();
+    Console.WriteLine($"Daily puzzles created: {created}");
     return;
 }
 

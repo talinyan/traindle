@@ -32,7 +32,7 @@ public class GameLine
     public int StationCount { get; set; }
     public int Length { get; set; }             // in metres
     public int OpeningYear { get; set; }
-    public string Geometry { get; set; } = "";  // MULTILINESTRING WKT of its open sections
+    public string Geometry { get; set; } = "";
 
     public GameSystem? System { get; set; }
 }
@@ -44,8 +44,16 @@ public class DailyPuzzle
 {
     public DateOnly Date { get; set; }
     public GameKind Game { get; set; }
-    public int TargetId { get; set; }           // GameSystem.Id or GameLine.Id
+    public int TargetId { get; set; }
 }
+public record DailyPuzzleResponse(DateOnly Date, int PuzzleNumber);
+
+public class RandomPuzzle
+{
+    public GameKind Game { get; set; }
+    public int TargetId { get; set; }
+}
+public record RandomPuzzleResponse(GameKind game, int Id);
 
 // How the answer compares to the guess
 public enum Comparison { Lower, Equal, Higher }
@@ -78,11 +86,11 @@ public record GameLineOption(
     int Id, string Name, string? Colour, string Mode, int StationCount, int Length,
     int OpeningYear, int SystemId, string SystemName, string City, string? Country);
 
-public record DailyPuzzleResponse(DateOnly Date, int PuzzleNumber);
+public record SystemDailyGuessRequest(DateOnly Date, int SystemId);
+public record SystemRandomGuessRequest(int AnswerId, int SystemId);
 
-public record SystemGuessRequest(DateOnly Date, int SystemId);
-
-public record LineGuessRequest(DateOnly Date, int LineId);
+public record LineDailyGuessRequest(DateOnly Date, int LineId);
+public record LineRandomGuessRequest(int AnswerId, int LineId);
 
 // DistanceKm/Bearing are null when either city has no coordinates; Bearing is degrees clockwise from north, guess -> answer
 public record SystemGuessResponse(

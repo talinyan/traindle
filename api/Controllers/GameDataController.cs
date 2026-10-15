@@ -21,10 +21,24 @@ public class GameDataController : ControllerBase
         return Ok(systems);
     }
 
+    [HttpGet("systems/reveal")]
+    public async Task<IActionResult> GetGameSystem([FromQuery] int id)
+    {
+        var system = await _gd.GetGameSystemAsync(id);
+        return Ok(system);
+    }
+
     [HttpGet("lines/options")]
     public async Task<IActionResult> GetGameLineOptions()
     {
         var lines = await _gd.GetGameLineOptionsAsync();
         return Ok(lines);
+    }
+
+    [HttpGet("lines/reveal")]
+    public async Task<IActionResult> GetGameLine([FromQuery] int id)
+    {
+        var line = await _gd.GetGameLineAsync(id);
+        return Ok(line);
     }
 }
