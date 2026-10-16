@@ -6,6 +6,18 @@ interface Update {
 // newest first
 export const updates: Update[] = [
   {
+    date: '2026-10-15',
+    changes: [
+      {
+        title: 'Added Free Play',
+        items: [
+          'Added "Free Play" mode - play as many rounds as you like!',
+          'Modified home page and reworked overall layout'
+        ]
+      }
+    ]
+  },
+  {
     date: '2026-10-13',
     changes: [
       {

@@ -1,9 +1,7 @@
+import Home from './components/Home';
+
 function App() {
-  return (
-    <div className='text-center text-red-50'>
-      <h1>Traindle - Home page WIP!</h1>
-    </div>
-  );
+  return <Home />;
 }
 
 export default App;

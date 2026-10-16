@@ -12,23 +12,14 @@ export default function Layout() {
     <div className='flex min-h-svh flex-col'>
       <header className='sticky top-0 z-1100 border-b border-border bg-bg/85 backdrop-blur'>
         <div className='mx-auto grid h-14 max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 sm:px-6'>
-          <Link
-            to='/'
-            className='flex items-center gap-2 justify-self-start font-display text-lg font-semibold text-fg'
-          >
+          <div className='flex items-center gap-2 justify-self-start font-display text-lg font-semibold text-fg'>
             <span aria-hidden className='h-2.5 w-2.5 rounded-full bg-neon shadow-[0_0_12px] shadow-neon/60' />
             Traindle
-          </Link>
+          </div>
 
           <nav className='flex h-full gap-4 sm:gap-7'>
             <NavLink to='/' end className={navClass}>
-              Home
-            </NavLink>
-            <NavLink to='/systems' end className={navClass}>
-              Systems
-            </NavLink>
-            <NavLink to='/lines' end className={navClass}>
-              Lines
+              Play Traindle
             </NavLink>
           </nav>
 

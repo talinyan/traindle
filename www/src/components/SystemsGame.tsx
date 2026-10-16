@@ -1,13 +1,13 @@
-import { getSystemOptions, guessSystem } from '../api/client';
+import { getSystemOptions, guessRandomSystem, guessSystem } from '../api/client';
 import GuessInput from './GuessInput';
-import type { GameSystemOption, SystemGuess } from '../api/types';
+import type { GameMode, GameSystemOption, SystemGuess } from '../api/types';
 import { useGameState } from '../api/gameState';
 import { Cell, CompareCell, LocationCell, Modes, WinBanner } from './HintCells';
 
-export default function SystemsGame() {
-  const game = useGameState('systems', getSystemOptions, guessSystem);
+export default function SystemsGame({ mode }: { mode: GameMode }) {
+  const game = useGameState('systems', mode, getSystemOptions, guessSystem, guessRandomSystem);
 
-  if (!game.puzzle) {
+  if (!game.ready) {
     if (game.error) return <p>{game.error}</p>;
     return <p>Loading...</p>;
   }
@@ -34,12 +34,12 @@ export default function SystemsGame() {
 
   return (
     <div className='flex flex-col gap-6'>
-      <h1 className='text-2xl font-semibold'>Traindle Systems: Day #{game.puzzle.puzzleNumber}</h1>
+      <h1 className='text-2xl font-semibold'>Traindle Systems: {game.title}</h1>
 
       {game.error && <p className='text-sm text-red-400'>{game.error}</p>}
 
       {game.won ? (
-        <WinBanner guessCount={game.guesses.length} onReset={game.resetGuesses} />
+        <WinBanner guessCount={game.guesses.length} onReset={mode === 'daily' ? game.resetGuesses : game.newPuzzle} />
       ) : (
         <GuessInput
           options={game.options}
@@ -59,8 +59,8 @@ export default function SystemsGame() {
             <thead className='text-xs text-secondary'>
               <tr>
                 <th className='text-left font-normal'>System</th>
-                <th className='font-normal'>Location</th>
-                <th className='font-normal'>Length</th>
+                <th className='font-normal'>To Target</th>
+                <th className='font-normal'>System Length</th>
                 <th className='font-normal'>Lines</th>
                 <th className='font-normal'>Stations</th>
                 <th className='font-normal'>Opened</th>

@@ -71,17 +71,23 @@ export interface SystemSummary {
   continent: Continent | null;
 }
 
-export type Continent = "Africa" | "Asia" | "Europe" | "North America" | "South America" | "Oceania";
+export type Continent = 'Africa' | 'Asia' | 'Europe' | 'North America' | 'South America' | 'Oceania';
 
-export type GameKind = "systems" | "lines";
+export type GameKind = 'systems' | 'lines';
+export type GameMode = 'daily' | 'random';
 
 export interface DailyPuzzle {
   date: string; // yyyy-MM-dd -> new Date().toLocaleDateString("en-CA");
   puzzleNumber: number;
 }
 
-export type Comparison = "Lower" | "Equal" | "Higher";
-export type ModeMatch = "None" | "Partial" | "Exact";
+export interface RandomPuzzle {
+  game: GameKind;
+  id: number;
+}
+
+export type Comparison = 'Lower' | 'Equal' | 'Higher';
+export type ModeMatch = 'None' | 'Partial' | 'Exact';
 
 export interface SystemGuess {
   guessId: number;

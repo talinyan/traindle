@@ -1,13 +1,14 @@
-import { getLineOptions, guessLine } from '../api/client';
+import { getLineOptions, guessLine, guessRandomLine, guessRandomSystem } from '../api/client';
 import GuessInput from './GuessInput';
-import type { GameLineOption, LineGuess } from '../api/types';
+import type { GameLineOption, GameMode, LineGuess } from '../api/types';
 import { useGameState } from '../api/gameState';
 import { Cell, CompareCell, LocationCell, Modes, WinBanner } from './HintCells';
 
-export default function LinesGame() {
-  const game = useGameState('lines', getLineOptions, guessLine);
+export default function LinesGame({ mode }: { mode: GameMode }) {
+  const game = useGameState('lines', mode, getLineOptions, guessLine, guessRandomLine);
+  console.log(mode);
 
-  if (!game.puzzle) {
+  if (!game.ready) {
     if (game.error) return <p>{game.error}</p>;
     return <p>Loading...</p>;
   }
@@ -43,12 +44,12 @@ export default function LinesGame() {
 
   return (
     <div className='flex flex-col gap-6'>
-      <h1 className='text-2xl font-semibold'>Traindle Lines: Day #{game.puzzle.puzzleNumber}</h1>
+      <h1 className='text-2xl font-semibold'>Traindle Lines: {game.title}</h1>
 
       {game.error && <p className='text-sm text-red-400'>{game.error}</p>}
 
       {game.won ? (
-        <WinBanner guessCount={game.guesses.length} onReset={game.resetGuesses} />
+        <WinBanner guessCount={game.guesses.length} onReset={mode === 'daily' ? game.resetGuesses : game.newPuzzle} />
       ) : (
         <GuessInput
           options={game.options}
@@ -68,8 +69,8 @@ export default function LinesGame() {
             <thead className='text-xs text-secondary'>
               <tr>
                 <th className='text-left font-normal'>Line</th>
-                <th className='font-normal'>Location</th>
-                <th className='font-normal'>Length</th>
+                <th className='font-normal'>To Target</th>
+                <th className='font-normal'>Line Length</th>
                 <th className='font-normal'>Stations</th>
                 <th className='font-normal'>Opened</th>
                 <th className='font-normal'>Mode</th>

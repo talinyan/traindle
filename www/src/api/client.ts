@@ -6,6 +6,7 @@ import type {
   GameSystem,
   GameSystemOption,
   LineGuess,
+  RandomPuzzle,
   SystemGuess
 } from './types';
 
@@ -27,6 +28,7 @@ const post = (body: unknown): RequestInit => ({
 export const getSystemOptions = () => request<GameSystemOption[]>('/gamedata/systems/options');
 export const getLineOptions = () => request<GameLineOption[]>('/gamedata/lines/options');
 
+// Daily
 export const getDaily = (game: GameKind, date: string) => request<DailyPuzzle>(`/dailygame/${game}/daily?date=${date}`);
 
 export const guessSystem = (date: string, systemId: number) =>
@@ -38,3 +40,12 @@ export const guessLine = (date: string, lineId: number) =>
 export const revealSystem = (date: string) => request<GameSystem>(`/dailygame/systems/reveal?date=${date}`);
 
 export const revealLine = (date: string) => request<GameLine>(`/dailygame/lines/reveal?date=${date}`);
+
+// Random
+export const getRandom = (game: GameKind) => request<RandomPuzzle>(`/randomgame/${game}/random`);
+
+export const guessRandomSystem = (answerId: number, systemId: number) =>
+  request<SystemGuess>('/randomgame/systems/guess', post({ answerId, systemId }));
+
+export const guessRandomLine = (answerId: number, lineId: number) =>
+  request<LineGuess>('/randomgame/lines/guess', post({ answerId, lineId }));
