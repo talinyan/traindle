@@ -17,8 +17,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path='/' element={<App />} />
           <Route path='/daily/systems' element={<SystemsGame key='daily' mode='daily' />} />
           <Route path='/daily/lines' element={<LinesGame key='daily' mode='daily' />} />
-          <Route path='/freeplay/systems' element={<SystemsGame key='random' mode='random' />} />
-          <Route path='/freeplay/lines' element={<LinesGame key='random' mode='random' />} />
+          <Route path='/endless/systems' element={<SystemsGame key='random' mode='random' />} />
+          <Route path='/endless/lines' element={<LinesGame key='random' mode='random' />} />
           <Route path='/changelog' element={<ChangeLog />} />
         </Route>
       </Routes>

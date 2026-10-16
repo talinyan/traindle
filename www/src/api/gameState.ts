@@ -7,7 +7,7 @@ interface BaseGuess {
   correct: boolean;
 }
 
-// What we keep in localStorage for a free play game
+// What we keep in localStorage for an endless game
 interface RandomSave<TGuess> {
   answerId: number;
   guesses: TGuess[];
@@ -79,7 +79,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
   guessRandom: (answerId: number, id: number) => Promise<TGuess>
 ) => {
   const [date] = useState(getTodaysDate);
-  // Free play: the answer we're guessing. Restored from storage so a refresh keeps the same puzzle
+  // Endless: the answer we're guessing. Restored from storage so a refresh keeps the same puzzle
   const [answerId, setAnswerId] = useState<number | null>(() =>
     mode === 'random' ? (loadRandom<TGuess>(game)?.answerId ?? null) : null
   );
@@ -131,7 +131,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     };
   }, [loadOptions]);
 
-  // On page load (and after newPuzzle in free play): fetch the puzzle
+  // On page load (and after newPuzzle in endless): fetch the puzzle
   useEffect(() => {
     let cancelled = false;
 
@@ -165,7 +165,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     setGuesses([]);
   };
 
-  // Free play: throw away the current puzzle; the effect above fetches a new one
+  // Endless: throw away the current puzzle; the effect above fetches a new one
   const newPuzzle = () => {
     clearRandom(game);
     setGuesses([]);
@@ -199,7 +199,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
   if (mode === 'daily' && puzzleNumber !== null) {
     title = 'Day #' + puzzleNumber;
   } else if (mode === 'random' && answerId !== null) {
-    title = 'Free Play';
+    title = 'Endless';
   }
 
   return {

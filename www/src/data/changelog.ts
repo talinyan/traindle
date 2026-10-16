@@ -9,9 +9,9 @@ export const updates: Update[] = [
     date: '2026-10-15',
     changes: [
       {
-        title: 'Added Free Play',
+        title: 'Added Endless Mode',
         items: [
-          'Added "Free Play" mode - play as many rounds as you like!',
+          'Added "Endless" mode - play as many rounds as you like!',
           'Modified home page and reworked overall layout'
         ]
       }

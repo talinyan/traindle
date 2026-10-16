@@ -20,13 +20,13 @@ export default function Home() {
       </section>
 
       <section className='flex flex-col gap-3'>
-        <h2 className='text-xl font-semibold'>Free Play</h2>
+        <h2 className='text-xl font-semibold'>Endless</h2>
         <p className='text-sm text-secondary'>Random puzzles, as many as you like!</p>
         <div className='grid gap-4 sm:grid-cols-2'>
-          <Link to='/freeplay/systems' className={cardClass}>
+          <Link to='/endless/systems' className={cardClass}>
             Systems
           </Link>
-          <Link to='/freeplay/lines' className={cardClass}>
+          <Link to='/endless/lines' className={cardClass}>
             Lines
           </Link>
         </div>
