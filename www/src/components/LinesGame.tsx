@@ -1,4 +1,4 @@
-import { getLineOptions, guessLine, guessRandomLine, guessRandomSystem } from '../api/client';
+import { getLineOptions, guessLine, guessRandomLine } from '../api/client';
 import GuessInput from './GuessInput';
 import type { GameLineOption, GameMode, LineGuess } from '../api/types';
 import { useGameState } from '../api/gameState';

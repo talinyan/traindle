@@ -1,4 +1,4 @@
-import { getSystemOptions, guessRandomSystem, guessSystem } from '../api/client';
+import { getSystemOptions, guessSystem, guessRandomSystem } from '../api/client';
 import GuessInput from './GuessInput';
 import type { GameMode, GameSystemOption, SystemGuess } from '../api/types';
 import { useGameState } from '../api/gameState';

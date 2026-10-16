@@ -1,4 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet } from 'react-router';
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `relative flex h-full items-center px-1 text-sm transition-colors ${
