@@ -2,7 +2,7 @@ import { getSystemOptions, guessSystem, guessRandomSystem } from '../api/client'
 import GuessInput from './GuessInput';
 import type { GameMode, GameSystemOption, SystemGuess } from '../api/types';
 import { useGameState } from '../api/gameState';
-import { Cell, CompareCell, LocationCell, Modes, WinBanner } from './HintCells';
+import { Cell, CompareCell, LocationCell, Modes, ResetButton, WinBanner } from './HintCells';
 
 export default function SystemsGame({ mode }: { mode: GameMode }) {
   const game = useGameState('systems', mode, getSystemOptions, guessSystem, guessRandomSystem);
@@ -34,12 +34,16 @@ export default function SystemsGame({ mode }: { mode: GameMode }) {
 
   return (
     <div className='flex flex-col gap-6'>
-      <h1 className='text-2xl font-semibold'>Traindle Systems: {game.title}</h1>
+      <div className='flex items-center justify-between gap-4'>
+        <h1 className='text-2xl font-semibold'>Traindle Systems: {game.title}</h1>
+
+        <ResetButton onReset={mode === 'daily' ? game.resetGuesses : game.newPuzzle} />
+      </div>
 
       {game.error && <p className='text-sm text-red-400'>{game.error}</p>}
 
       {game.won ? (
-        <WinBanner guessCount={game.guesses.length} onReset={mode === 'daily' ? game.resetGuesses : game.newPuzzle} />
+        <WinBanner guessCount={game.guesses.length} />
       ) : (
         <GuessInput
           options={game.options}

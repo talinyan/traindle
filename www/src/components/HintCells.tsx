@@ -30,19 +30,24 @@ export function CompareCell({ result, children }: { result: Comparison; children
   );
 }
 
-export function WinBanner({ guessCount, onReset }: { guessCount: number; onReset: () => void }) {
+export function ResetButton({ onReset }: { onReset: () => void }) {
+  return (
+    <button
+      type='button'
+      onClick={onReset}
+      className='shrink-0 rounded-md border border-border bg-white/5 px-3 py-1.5 text-sm text-primary hover:border-neon cursor-pointer'
+    >
+      Reset Guesses
+    </button>
+  );
+}
+
+export function WinBanner({ guessCount }: { guessCount: number }) {
   return (
     <div className='flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neon/40 bg-neon/10 px-4 py-3'>
       <p className='text-primary'>
         You got it in {guessCount} {guessCount === 1 ? 'guess' : 'guesses'}!
       </p>
-      <button
-        type='button'
-        onClick={onReset}
-        className='rounded-md border border-border bg-white/5 px-3 py-1.5 text-sm text-primary hover:border-neon cursor-pointer'
-      >
-        Play again
-      </button>
     </div>
   );
 }
