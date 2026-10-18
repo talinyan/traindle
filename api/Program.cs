@@ -43,6 +43,12 @@ builder.Services.AddControllers()
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PostgresContext>();
+    db.Database.Migrate();
+}
+
 // CLI mode: `dotnet run -- ingest` to ingest data from citylines.co
 if (args.Contains("ingest"))
 {
