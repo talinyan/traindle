@@ -84,7 +84,7 @@ public record GameLineResponse(
 // Limited doc for autocomplete
 public record GameLineOption(
     int Id, string Name, string? Colour, string Mode, int StationCount, int Length,
-    int OpeningYear, int SystemId, string SystemName, string City, string? Country);
+    int OpeningYear, int SystemId, string SystemName, string City, string? Country, string? Continent);
 
 public record SystemDailyGuessRequest(DateOnly Date, int SystemId);
 public record SystemRandomGuessRequest(int AnswerId, int SystemId);

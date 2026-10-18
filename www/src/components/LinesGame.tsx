@@ -105,10 +105,10 @@ function LineGuessRow({ guess, line }: { guess: LineGuess; line: GameLineOption 
       <Cell correct={guess.correct} align='left'>
         <span className='flex items-center gap-2 text-primary'>
           <Swatch colour={line.colour} />
-          {line.name}
+          {line.name} ({line.systemName})
         </span>
         <span className='block text-xs text-secondary'>
-          {line.systemName}, {line.city}
+          {line.city}, {line.country} ({line.continent})
         </span>
       </Cell>
 

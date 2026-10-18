@@ -93,7 +93,9 @@ function SystemGuessRow({ guess, system }: { guess: SystemGuess; system: GameSys
       {/* System */}
       <Cell correct={guess.correct} align={'left'}>
         <span className='text-primary'>{system.name}</span>
-        <span className='block text-xs text-secondary'>{system.city}</span>
+        <span className='block text-xs text-secondary'>
+          {system.city}, {system.country} ({system.continent})
+        </span>
       </Cell>
 
       {/* Location */}

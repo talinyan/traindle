@@ -6,6 +6,15 @@ interface Update {
 // newest first
 export const updates: Update[] = [
   {
+    date: '2026-10-18',
+    changes: [
+      {
+        title: 'Add country/continent info',
+        items: ['Added country and continent info to system and line guesses']
+      }
+    ]
+  },
+  {
     date: '2026-10-15',
     changes: [
       {

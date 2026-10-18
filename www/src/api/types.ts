@@ -54,6 +54,7 @@ export interface GameLineOption {
   systemName: string;
   city: string;
   country: string | null;
+  continent: Continent | null;
 }
 
 export interface LineSummary {
