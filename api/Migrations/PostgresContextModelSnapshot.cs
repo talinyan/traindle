@@ -83,6 +83,45 @@ namespace api.Migrations
                     b.ToTable("daily_puzzles", (string)null);
                 });
 
+            modelBuilder.Entity("Traindle.Data.GameEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AnswerId")
+                        .HasColumnType("integer")
+                        .HasColumnName("answer_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("Game")
+                        .HasColumnType("integer")
+                        .HasColumnName("game");
+
+                    b.Property<int?>("GuessId")
+                        .HasColumnType("integer")
+                        .HasColumnName("guess_id");
+
+                    b.Property<DateOnly?>("PuzzleDate")
+                        .HasColumnType("date")
+                        .HasColumnName("puzzle_date");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_game_events");
+
+                    b.ToTable("game_events", (string)null);
+                });
+
             modelBuilder.Entity("Traindle.Data.GameLine", b =>
                 {
                     b.Property<int>("Id")
@@ -247,6 +286,39 @@ namespace api.Migrations
                         .HasDatabaseName("ix_lines_city_id_url_name");
 
                     b.ToTable("lines", (string)null);
+                });
+
+            modelBuilder.Entity("Traindle.Data.Log", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("data");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id")
+                        .HasName("pk_logs");
+
+                    b.ToTable("logs", (string)null);
                 });
 
             modelBuilder.Entity("Traindle.Data.Section", b =>

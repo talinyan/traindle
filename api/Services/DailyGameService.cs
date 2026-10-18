@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Traindle.Data;
 
@@ -5,16 +6,15 @@ namespace Traindle.Services;
 
 public class DailyGameService
 {
-
     private readonly PostgresContext _db;
     private readonly GameDataService _gameData;
-    private readonly ILogger<DailyGameService> _logger;
+    private readonly TrackingService _tracking;
 
-    public DailyGameService(PostgresContext db, GameDataService gameData, ILogger<DailyGameService> logger)
+    public DailyGameService(PostgresContext db, GameDataService gameData, TrackingService tracking)
     {
         _db = db;
         _gameData = gameData;
-        _logger = logger;
+        _tracking = tracking;
     }
 
     public async Task<DailyPuzzleResponse?> GetDailyAsync(GameKind game, DateOnly date)
@@ -25,7 +25,10 @@ public class DailyGameService
 
         // Numbered by days since the first puzzle, so it's stable and skipped days still count
         var first = await _db.DailyPuzzles.Where(p => p.Game == game).MinAsync(p => p.Date);
-        return new DailyPuzzleResponse(date, date.DayNumber - first.DayNumber + 1);
+        var daily = new DailyPuzzleResponse(date, date.DayNumber - first.DayNumber + 1);
+
+        await _tracking.FetchAsync(game, date);
+        return daily;
     }
 
     public async Task<SystemGuessResponse?> GuessSystemAsync(DateOnly date, int guessId)
@@ -36,9 +39,17 @@ public class DailyGameService
 
         var answer = await _db.GameSystems.FindAsync(puzzle.TargetId);
         if (answer == null)
+        {
+            await _tracking.ErrorAsync(nameof(GuessSystemAsync),
+                new { reason = "AnswerNotFound", game = GameKind.Systems, date, targetId = puzzle.TargetId });
             return null;
+        }
 
-        return await _gameData.GuessSystemAsync(guessId, answer);
+        var guess = await _gameData.GuessSystemAsync(guessId, answer);
+        if (guess != null)
+            await _tracking.GuessAsync(GameKind.Systems, date, guessId, answer.Id);
+
+        return guess;
     }
 
     public async Task<LineGuessResponse?> GuessLineAsync(DateOnly date, int guessId)
@@ -49,9 +60,17 @@ public class DailyGameService
 
         var answer = await _db.GameLines.FindAsync(puzzle.TargetId);
         if (answer == null)
+        {
+            await _tracking.ErrorAsync(nameof(GuessLineAsync),
+                new { reason = "AnswerNotFound", game = GameKind.Lines, date, targetId = puzzle.TargetId });
             return null;
+        }
 
-        return await _gameData.GuessLineAsync(guessId, answer);
+        var guess = await _gameData.GuessLineAsync(guessId, answer);
+        if (guess != null)
+            await _tracking.GuessAsync(GameKind.Lines, date, guessId, answer.Id);
+
+        return guess;
     }
 
     public async Task<GameSystemResponse?> RevealSystemAsync(DateOnly date)
@@ -66,12 +85,17 @@ public class DailyGameService
         return puzzle == null ? null : await _gameData.GetGameLineAsync(puzzle.TargetId);
     }
 
-    // Puzzles are generated a few days ahead, so refuse dates no timezone (max UTC+14) has reached yet
-    private async Task<DailyPuzzle?> FindPuzzleAsync(GameKind game, DateOnly date)
+    // Puzzles are generated a few days ahead, so refuse dates no timezone (max UTC+14) has reached yet.
+    // Logs failures under the calling method's name, so callers don't need to.
+    private async Task<DailyPuzzle?> FindPuzzleAsync(GameKind game, DateOnly date,
+        [CallerMemberName] string caller = "")
     {
-        if (date > DateOnly.FromDateTime(DateTime.UtcNow.AddHours(14)))
-            return null;
+        var puzzle = await _db.DailyPuzzles.AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Game == game && p.Date == date);
 
-        return await _db.DailyPuzzles.AsNoTracking().FirstOrDefaultAsync(p => p.Game == game && p.Date == date);
+        if (puzzle == null)
+            await _tracking.ErrorAsync(caller, new { reason = "PuzzleNotFound", game, date });
+
+        return puzzle;
     }
 }

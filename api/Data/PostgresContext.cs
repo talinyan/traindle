@@ -19,6 +19,9 @@ public class PostgresContext : DbContext
     public DbSet<GameLine> GameLines => Set<GameLine>();
     public DbSet<DailyPuzzle> DailyPuzzles => Set<DailyPuzzle>();
 
+    public DbSet<Log> Logs => Set<Log>();
+    public DbSet<GameEvent> GameEvents => Set<GameEvent>();
+
     protected override void OnModelCreating(ModelBuilder b)
     {
         b.Entity<City>(e =>
@@ -139,6 +142,16 @@ public class PostgresContext : DbContext
             e.ToTable("daily_puzzles");
             e.HasKey(p => new { p.Date, p.Game });
             e.Property(p => p.Game).HasConversion<string>();
+        });
+
+        b.Entity<Log>(e =>
+        {
+            e.ToTable("logs");
+        });
+
+        b.Entity<GameEvent>(e =>
+        {
+            e.ToTable("game_events");
         });
     }
 }

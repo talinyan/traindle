@@ -26,6 +26,8 @@ builder.Services.AddScoped<GameDataService>();
 builder.Services.AddScoped<DailyGameService>();
 builder.Services.AddScoped<RandomGameService>();
 builder.Services.AddScoped<DailyPuzzleGenerationService>();
+builder.Services.AddScoped<TrackingService>();
+
 if (!args.Contains("ingest") && !args.Contains("generate-daily"))
     builder.Services.AddHostedService<DailyPuzzleGenerator>();
 
