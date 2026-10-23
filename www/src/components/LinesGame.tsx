@@ -6,7 +6,6 @@ import { Cell, CompareCell, LocationCell, Modes, ResetButton, WinBanner } from '
 
 export default function LinesGame({ mode }: { mode: GameMode }) {
   const game = useGameState('lines', mode, getLineOptions, guessLine, guessRandomLine);
-  console.log(mode);
 
   if (!game.ready) {
     if (game.error) return <p>{game.error}</p>;
@@ -53,7 +52,7 @@ export default function LinesGame({ mode }: { mode: GameMode }) {
       {game.error && <p className='text-sm text-red-400'>{game.error}</p>}
 
       {game.won ? (
-        <WinBanner guessCount={game.guesses.length} />
+        <WinBanner guesses={game.guesses} game='lines' title={game.title!} />
       ) : (
         <GuessInput
           options={game.options}
@@ -97,8 +96,6 @@ export default function LinesGame({ mode }: { mode: GameMode }) {
 
 // One row of the table: the guessed line's values, coloured by how close they are
 function LineGuessRow({ guess, line }: { guess: LineGuess; line: GameLineOption }) {
-  console.log(guess, line);
-
   return (
     <tr>
       {/* Line */}

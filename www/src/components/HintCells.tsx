@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import type { Comparison } from '../api/types';
+import type { Comparison, LineGuess, SystemGuess } from '../api/types';
 import { ArrowDown, ArrowUp, Check } from 'lucide-react';
+import { buttonClass } from '../ui';
 
 export function Cell({
   correct,
@@ -32,22 +33,69 @@ export function CompareCell({ result, children }: { result: Comparison; children
 
 export function ResetButton({ onReset }: { onReset: () => void }) {
   return (
-    <button
-      type='button'
-      onClick={onReset}
-      className='shrink-0 rounded-md border border-border bg-white/5 px-3 py-1.5 text-sm text-primary hover:border-neon cursor-pointer'
-    >
+    <button type='button' onClick={onReset} className={buttonClass}>
       Reset Guesses
     </button>
   );
 }
 
-export function WinBanner({ guessCount }: { guessCount: number }) {
+export function ResetPuzzle({ onReset }: { onReset: () => void }) {
+  return (
+    <button type='button' onClick={onReset} className={buttonClass}>
+      New Puzzle
+    </button>
+  );
+}
+
+type Props = { title: string } & (
+  | { game: 'systems'; guesses: SystemGuess[] }
+  | { game: 'lines'; guesses: LineGuess[] }
+);
+export function WinBanner({ guesses, game, title }: Props) {
+  const shareResults = () => {
+    const right = '🟩';
+    const wrong = '🟥';
+    const partial = '🟨';
+    const higher = '⬆️';
+    const lower = '⬇️';
+
+    let results = `Traindle ${game.slice(0, 1).toUpperCase() + game.slice(1)}: ${title}\n`;
+
+    if (game === 'systems') {
+      guesses.forEach((g) => {
+        results += g.correct ? right : wrong;
+        results += g.distanceKm === 0 ? right : wrong;
+        results += g.length === 'Lower' ? lower : g.length === 'Higher' ? higher : right;
+        results += g.lineCount === 'Lower' ? lower : g.lineCount === 'Higher' ? higher : right;
+        results += g.openingYear === 'Lower' ? lower : g.openingYear === 'Higher' ? higher : right;
+        results += g.modeMatch === 'Partial' ? partial : g.modeMatch === 'None' ? wrong : right;
+        results += '\n';
+      });
+    } else {
+      guesses.forEach((g) => {
+        results += g.correct ? right : wrong;
+        results += g.distanceKm === 0 ? right : wrong;
+        results += g.length === 'Lower' ? lower : g.length === 'Higher' ? higher : right;
+        results += g.stationCount === 'Lower' ? lower : g.stationCount === 'Higher' ? higher : right;
+        results += g.openingYear === 'Lower' ? lower : g.openingYear === 'Higher' ? higher : right;
+        results += g.modeCorrect ? right : wrong;
+        results += '\n';
+      });
+    }
+
+    console.log(guesses);
+    navigator.clipboard.writeText(results);
+  };
+
   return (
     <div className='flex flex-wrap items-center justify-between gap-3 rounded-lg border border-neon/40 bg-neon/10 px-4 py-3'>
       <p className='text-primary'>
-        You got it in {guessCount} {guessCount === 1 ? 'guess' : 'guesses'}!
+        You got it in {guesses.length} {guesses.length === 1 ? 'guess' : 'guesses'}!
       </p>
+
+      <button className={buttonClass} onClick={shareResults}>
+        Share
+      </button>
     </div>
   );
 }

@@ -6,6 +6,19 @@ interface Update {
 // newest first
 export const updates: Update[] = [
   {
+    date: '2026-10-22',
+    changes: [
+      {
+        title: 'Share results',
+        items: ['Added ability to share your guess results after a correct guess!']
+      },
+      {
+        title: 'Endless mode regenerate or reset',
+        items: ['On endless mode, can now either regenerate or reset the guesses to try again! ']
+      }
+    ]
+  },
+  {
     date: '2026-10-18',
     changes: [
       {

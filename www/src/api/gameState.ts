@@ -212,6 +212,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     submitting,
     submitGuess,
     resetGuesses,
-    newPuzzle
+    newPuzzle,
+    mode
   };
 };
