@@ -94,7 +94,7 @@ export function WinBanner({ guesses, game, title }: Props) {
       </p>
 
       <button className={buttonClass} onClick={shareResults}>
-        Share
+        Share Results
       </button>
     </div>
   );
