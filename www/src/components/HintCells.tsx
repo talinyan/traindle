@@ -63,7 +63,6 @@ export function WinBanner({ guesses, game, title }: Props) {
 
     if (game === 'systems') {
       guesses.forEach((g) => {
-        results += g.correct ? right : wrong;
         results += g.distanceKm === 0 ? right : wrong;
         results += g.length === 'Lower' ? lower : g.length === 'Higher' ? higher : right;
         results += g.lineCount === 'Lower' ? lower : g.lineCount === 'Higher' ? higher : right;
@@ -73,7 +72,6 @@ export function WinBanner({ guesses, game, title }: Props) {
       });
     } else {
       guesses.forEach((g) => {
-        results += g.correct ? right : wrong;
         results += g.distanceKm === 0 ? right : wrong;
         results += g.length === 'Lower' ? lower : g.length === 'Higher' ? higher : right;
         results += g.stationCount === 'Lower' ? lower : g.stationCount === 'Higher' ? higher : right;
