@@ -2,7 +2,7 @@ import { getSystemOptions, guessSystem, guessRandomSystem } from '../api/client'
 import GuessInput from './GuessInput';
 import type { GameMode, GameSystemOption, SystemGuess } from '../api/types';
 import { useGameState } from '../api/gameState';
-import { Cell, CompareCell, LocationCell, Modes, ResetButton, ResetPuzzle, WinBanner } from './HintCells';
+import { Cell, CompareCell, LocationCell, Modes, ResetGuesses, ResetPuzzle, WinBanner } from './HintCells';
 
 export default function SystemsGame({ mode }: { mode: GameMode }) {
   const game = useGameState('systems', mode, getSystemOptions, guessSystem, guessRandomSystem);
@@ -40,7 +40,7 @@ export default function SystemsGame({ mode }: { mode: GameMode }) {
         <div className='flex gap-2'>
           {game.mode === 'random' && <ResetPuzzle onReset={game.newPuzzle} />}
 
-          <ResetButton onReset={game.resetGuesses} />
+          <ResetGuesses onReset={game.resetGuesses} />
         </div>
       </div>
 

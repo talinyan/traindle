@@ -14,7 +14,6 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route element={<Layout />}>
           <Route path='/' element={<App />} />
-          <Route path='/' element={<App />} />
           <Route path='/daily/systems' element={<SystemsGame key='daily' mode='daily' />} />
           <Route path='/daily/lines' element={<LinesGame key='daily' mode='daily' />} />
           <Route path='/endless/systems' element={<SystemsGame key='random' mode='random' />} />

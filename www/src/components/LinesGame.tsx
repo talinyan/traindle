@@ -2,7 +2,7 @@ import { getLineOptions, guessLine, guessRandomLine } from '../api/client';
 import GuessInput from './GuessInput';
 import type { GameLineOption, GameMode, LineGuess } from '../api/types';
 import { useGameState } from '../api/gameState';
-import { Cell, CompareCell, LocationCell, Modes, ResetButton, WinBanner } from './HintCells';
+import { Cell, CompareCell, LocationCell, Modes, ResetGuesses, WinBanner, ResetPuzzle } from './HintCells';
 
 export default function LinesGame({ mode }: { mode: GameMode }) {
   const game = useGameState('lines', mode, getLineOptions, guessLine, guessRandomLine);
@@ -46,7 +46,11 @@ export default function LinesGame({ mode }: { mode: GameMode }) {
       <div className='flex items-center justify-between gap-4'>
         <h1 className='text-2xl font-semibold'>Traindle Lines: {game.title}</h1>
 
-        <ResetButton onReset={mode === 'daily' ? game.resetGuesses : game.newPuzzle} />
+        <div className='flex gap-2'>
+          {game.mode === 'random' && <ResetPuzzle onReset={game.newPuzzle} />}
+
+          <ResetGuesses onReset={game.resetGuesses} />
+        </div>
       </div>
 
       {game.error && <p className='text-sm text-red-400'>{game.error}</p>}

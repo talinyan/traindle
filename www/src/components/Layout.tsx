@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router';
+import { Flip, ToastContainer } from 'react-toastify';
 
 const navClass = ({ isActive }: { isActive: boolean }) =>
   `relative flex h-full items-center px-1 text-sm transition-colors ${
@@ -44,6 +45,15 @@ export default function Layout() {
           . This site is not affiliated in any way.
         </p>
       </footer>
+
+      <ToastContainer
+        theme='dark'
+        position='bottom-right'
+        hideProgressBar
+        closeOnClick
+        autoClose={1500}
+        transition={Flip}
+      />
     </div>
   );
 }

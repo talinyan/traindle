@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Comparison, LineGuess, SystemGuess } from '../api/types';
 import { ArrowDown, ArrowUp, Check } from 'lucide-react';
 import { buttonClass } from '../ui';
+import { toast } from 'react-toastify';
 
 export function Cell({
   correct,
@@ -31,7 +32,7 @@ export function CompareCell({ result, children }: { result: Comparison; children
   );
 }
 
-export function ResetButton({ onReset }: { onReset: () => void }) {
+export function ResetGuesses({ onReset }: { onReset: () => void }) {
   return (
     <button type='button' onClick={onReset} className={buttonClass}>
       Reset Guesses
@@ -52,7 +53,7 @@ type Props = { title: string } & (
   | { game: 'lines'; guesses: LineGuess[] }
 );
 export function WinBanner({ guesses, game, title }: Props) {
-  const shareResults = () => {
+  const copyResults = () => {
     const right = '🟩';
     const wrong = '🟥';
     const partial = '🟨';
@@ -81,8 +82,12 @@ export function WinBanner({ guesses, game, title }: Props) {
       });
     }
 
-    console.log(guesses);
     navigator.clipboard.writeText(results);
+    const id = 'copied';
+
+    if (!toast.isActive(id)) {
+      toast.success('Copied!', { toastId: id });
+    }
   };
 
   return (
@@ -91,7 +96,7 @@ export function WinBanner({ guesses, game, title }: Props) {
         You got it in {guesses.length} {guesses.length === 1 ? 'guess' : 'guesses'}!
       </p>
 
-      <button className={buttonClass} onClick={shareResults}>
+      <button className={buttonClass} onClick={copyResults}>
         Copy Results
       </button>
     </div>
