@@ -1,11 +1,14 @@
 import { getSystemOptions, guessSystem, guessRandomSystem } from '../api/client';
 import GuessInput from './GuessInput';
-import type { GameMode, GameSystemOption, SystemGuess } from '../api/types';
+import { toContinent, type GameMode, type GameSystemOption, type SystemGuess } from '../api/types';
 import { useGameState } from '../api/gameState';
 import { Cell, CompareCell, LocationCell, Modes, ResetGuesses, ResetPuzzle, WinBanner } from './HintCells';
+import { useSearchParams } from 'react-router';
 
 export default function SystemsGame({ mode }: { mode: GameMode }) {
-  const game = useGameState('systems', mode, getSystemOptions, guessSystem, guessRandomSystem);
+  const [searchParams] = useSearchParams();
+  const continent = toContinent(searchParams.get('continent'));
+  const game = useGameState('systems', mode, getSystemOptions, guessSystem, guessRandomSystem, continent);
 
   if (!game.ready) {
     if (game.error) return <p>{game.error}</p>;

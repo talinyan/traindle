@@ -3,55 +3,57 @@ namespace Traindle.Data;
 // Processed data
 public class GameSystem
 {
-    public int Id { get; set; }                 // TransportSystem.Id
-    public string Name { get; set; } = "";
-    public int CityId { get; set; }
-    public string City { get; set; } = "";
-    public string? Country { get; set; }
-    public string? CountryState { get; set; }
-    public string? Continent { get; set; }
-    public double? Latitude { get; set; }
-    public double? Longitude { get; set; }
-    public List<string> Modes { get; set; } = new();
-    public int LineCount { get; set; }
-    public int StationCount { get; set; }
-    public int InterchangeCount { get; set; }   // stations served by 2+ of its lines
-    public int Length { get; set; }             // in metres
-    public int OpeningYear { get; set; }
+  public int Id { get; set; }                 // TransportSystem.Id
+  public string Name { get; set; } = "";
+  public int CityId { get; set; }
+  public string City { get; set; } = "";
+  public string? Country { get; set; }
+  public string? CountryState { get; set; }
+  public Continent? Continent { get; set; }
+  public double? Latitude { get; set; }
+  public double? Longitude { get; set; }
+  public List<string> Modes { get; set; } = new();
+  public int LineCount { get; set; }
+  public int StationCount { get; set; }
+  public int InterchangeCount { get; set; }   // stations served by 2+ of its lines
+  public int Length { get; set; }             // in metres
+  public int OpeningYear { get; set; }
 
-    public List<GameLine> Lines { get; set; } = new();
+  public List<GameLine> Lines { get; set; } = new();
 }
 
 public class GameLine
 {
-    public int Id { get; set; }                 // Line.Id
-    public int SystemId { get; set; }
-    public string Name { get; set; } = "";
-    public string? Colour { get; set; }
-    public string Mode { get; set; } = "";
-    public int StationCount { get; set; }
-    public int Length { get; set; }             // in metres
-    public int OpeningYear { get; set; }
-    public string Geometry { get; set; } = "";
+  public int Id { get; set; }                 // Line.Id
+  public int SystemId { get; set; }
+  public string Name { get; set; } = "";
+  public string? Colour { get; set; }
+  public string Mode { get; set; } = "";
+  public int StationCount { get; set; }
+  public int Length { get; set; }             // in metres
+  public int OpeningYear { get; set; }
+  public string Geometry { get; set; } = "";
 
-    public GameSystem? System { get; set; }
+  public GameSystem? System { get; set; }
 }
 
 public enum GameKind { Systems, Lines }
 
+public enum Continent { NorthAmerica, SouthAmerica, Asia, Europe, Africa, Oceania }
+
 // The answer for a game per day
 public class DailyPuzzle
 {
-    public DateOnly Date { get; set; }
-    public GameKind Game { get; set; }
-    public int TargetId { get; set; }
+  public DateOnly Date { get; set; }
+  public GameKind Game { get; set; }
+  public int TargetId { get; set; }
 }
 public record DailyPuzzleResponse(DateOnly Date, int PuzzleNumber);
 
 public class RandomPuzzle
 {
-    public GameKind Game { get; set; }
-    public int TargetId { get; set; }
+  public GameKind Game { get; set; }
+  public int TargetId { get; set; }
 }
 public record RandomPuzzleResponse(GameKind game, int Id);
 
@@ -59,18 +61,18 @@ public record RandomPuzzleResponse(GameKind game, int Id);
 public enum Comparison { Lower, Equal, Higher }
 public enum ModeMatch { None, Partial, Exact }
 
-public record GameSystemSummary(int Id, string Name, string City, string? Country, string? Continent);
+public record GameSystemSummary(int Id, string Name, string City, string? Country, Continent? Continent);
 
 // Entire doc
 public record GameSystemResponse(
-    int Id, string Name, string City, string? Country, string? CountryState, string? Continent,
+    int Id, string Name, string City, string? Country, string? CountryState, Continent? Continent,
     double? Latitude, double? Longitude, List<string> Modes,
     int LineCount, int StationCount, int InterchangeCount, int Length, int OpeningYear,
     List<GameLineSummary> Lines);
 
 // Limited doc for autocomplete
 public record GameSystemOption(
-    int Id, string Name, string City, string? Country, string? Continent,
+    int Id, string Name, string City, string? Country, Continent? Continent,
     List<string> Modes, int LineCount, int StationCount, int Length, int OpeningYear);
 
 public record GameLineSummary(int Id, string Name, string? Colour, string Mode);
@@ -84,7 +86,7 @@ public record GameLineResponse(
 // Limited doc for autocomplete
 public record GameLineOption(
     int Id, string Name, string? Colour, string Mode, int StationCount, int Length,
-    int OpeningYear, int SystemId, string SystemName, string City, string? Country, string? Continent);
+    int OpeningYear, int SystemId, string SystemName, string City, string? Country, Continent? Continent);
 
 public record SystemDailyGuessRequest(DateOnly Date, int SystemId);
 public record SystemRandomGuessRequest(int AnswerId, int SystemId);

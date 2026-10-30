@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { GameKind, GameMode } from './types';
+import { readableContinent, type Continent, type GameKind, type GameMode } from './types';
 import { getDaily, getRandom } from './client';
 
 interface BaseGuess {
@@ -14,7 +14,9 @@ interface RandomSave<TGuess> {
 }
 
 const getStorageKey = (game: GameKind, date: string) => 'traindle:' + game + ':' + date;
-const getRandomStorageKey = (game: GameKind) => 'traindle:random:' + game;
+// Endless saves are per continent so switching region doesn't reuse another region's answer
+const getRandomStorageKey = (game: GameKind, continent: Continent | null) =>
+  'traindle:random:' + game + (continent ? ':' + continent : '');
 const getTodaysDate = () => new Date().toLocaleDateString('en-CA');
 
 const loadGuesses = <TGuess>(game: GameKind, date: string): TGuess[] => {
@@ -41,9 +43,9 @@ const saveGuesses = <TGuess>(game: GameKind, date: string, guesses: TGuess[]) =>
   } catch {}
 };
 
-const loadRandom = <TGuess>(game: GameKind): RandomSave<TGuess> | null => {
+const loadRandom = <TGuess>(game: GameKind, continent: Continent | null): RandomSave<TGuess> | null => {
   try {
-    const text = localStorage.getItem(getRandomStorageKey(game));
+    const text = localStorage.getItem(getRandomStorageKey(game, continent));
     if (text === null) {
       return null;
     }
@@ -59,32 +61,33 @@ const loadRandom = <TGuess>(game: GameKind): RandomSave<TGuess> | null => {
   }
 };
 
-const saveRandom = <TGuess>(game: GameKind, save: RandomSave<TGuess>) => {
+const saveRandom = <TGuess>(game: GameKind, continent: Continent | null, save: RandomSave<TGuess>) => {
   try {
-    localStorage.setItem(getRandomStorageKey(game), JSON.stringify(save));
+    localStorage.setItem(getRandomStorageKey(game, continent), JSON.stringify(save));
   } catch {}
 };
 
-const clearRandom = (game: GameKind) => {
+const clearRandom = (game: GameKind, continent: Continent | null) => {
   try {
-    localStorage.removeItem(getRandomStorageKey(game));
+    localStorage.removeItem(getRandomStorageKey(game, continent));
   } catch {}
 };
 
 export const useGameState = <TOption, TGuess extends BaseGuess>(
   game: GameKind,
   mode: GameMode,
-  loadOptions: () => Promise<TOption[]>,
+  loadOptions: (continent: Continent | null) => Promise<TOption[]>,
   guessDaily: (date: string, id: number) => Promise<TGuess>,
-  guessRandom: (answerId: number, id: number) => Promise<TGuess>
+  guessRandom: (answerId: number, id: number) => Promise<TGuess>,
+  continent: Continent | null
 ) => {
   const [date] = useState(getTodaysDate);
   // Endless: the answer we're guessing. Restored from storage so a refresh keeps the same puzzle
   const [answerId, setAnswerId] = useState<number | null>(() =>
-    mode === 'random' ? (loadRandom<TGuess>(game)?.answerId ?? null) : null
+    mode === 'random' ? (loadRandom<TGuess>(game, continent)?.answerId ?? null) : null
   );
   const [guesses, setGuesses] = useState<TGuess[]>(() =>
-    mode === 'random' ? (loadRandom<TGuess>(game)?.guesses ?? []) : loadGuesses<TGuess>(game, date)
+    mode === 'random' ? (loadRandom<TGuess>(game, continent)?.guesses ?? []) : loadGuesses<TGuess>(game, date)
   );
   const [puzzleNumber, setPuzzleNumber] = useState<number | null>(null);
   const [options, setOptions] = useState<TOption[] | null>(null);
@@ -97,9 +100,9 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     if (mode === 'daily') {
       saveGuesses(game, date, guesses);
     } else if (answerId !== null) {
-      saveRandom(game, { answerId, guesses });
+      saveRandom(game, continent, { answerId, guesses });
     }
-  }, [game, mode, date, answerId, guesses]);
+  }, [game, mode, date, answerId, guesses, continent]);
 
   // Every time the guesses change: check for correctness
   useEffect(() => {
@@ -113,7 +116,8 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
 
     const load = async () => {
       try {
-        const loadedOptions = await loadOptions();
+        // The daily answer is global, so only filter options in endless
+        const loadedOptions = await loadOptions(mode === 'daily' ? null : continent);
         if (cancelled) return;
 
         setOptions(loadedOptions);
@@ -129,7 +133,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     return () => {
       cancelled = true;
     };
-  }, [loadOptions]);
+  }, [loadOptions, mode, continent]);
 
   // On page load (and after newPuzzle in endless): fetch the puzzle
   useEffect(() => {
@@ -143,7 +147,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
 
           setPuzzleNumber(loadedPuzzle.puzzleNumber);
         } else if (answerId === null) {
-          const loadedPuzzle = await getRandom(game);
+          const loadedPuzzle = await getRandom(game, continent);
           if (cancelled) return;
 
           setAnswerId(loadedPuzzle.id);
@@ -159,7 +163,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     return () => {
       cancelled = true;
     };
-  }, [game, mode, date, answerId]);
+  }, [game, mode, date, answerId, continent]);
 
   const resetGuesses = () => {
     setGuesses([]);
@@ -167,7 +171,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
 
   // Endless: throw away the current puzzle; the effect above fetches a new one
   const newPuzzle = () => {
-    clearRandom(game);
+    clearRandom(game, continent);
     setGuesses([]);
     setAnswerId(null);
   };
@@ -201,6 +205,8 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
   } else if (mode === 'random' && answerId !== null) {
     title = 'Endless';
   }
+
+  if (continent) title += ` (${readableContinent(continent)})`;
 
   return {
     ready: title !== null && options !== null,

@@ -72,7 +72,17 @@ export interface SystemSummary {
   continent: Continent | null;
 }
 
-export type Continent = 'Africa' | 'Asia' | 'Europe' | 'North America' | 'South America' | 'Oceania';
+export const CONTINENTS = ['Africa', 'Asia', 'Europe', 'NorthAmerica', 'Oceania', 'SouthAmerica'] as const;
+export type Continent = (typeof CONTINENTS)[number];
+
+export function toContinent(value: string | null): Continent | null {
+  return CONTINENTS.includes(value as Continent) ? (value as Continent) : null;
+}
+
+export function readableContinent(value: Continent) {
+  if (value === 'NorthAmerica' || value === 'SouthAmerica') return value.slice(0, 5) + ' ' + value.slice(5);
+  return value;
+}
 
 export type GameKind = 'systems' | 'lines';
 export type GameMode = 'daily' | 'random';

@@ -1,11 +1,14 @@
 import { getLineOptions, guessLine, guessRandomLine } from '../api/client';
 import GuessInput from './GuessInput';
-import type { GameLineOption, GameMode, LineGuess } from '../api/types';
+import { toContinent, type GameLineOption, type GameMode, type LineGuess } from '../api/types';
 import { useGameState } from '../api/gameState';
 import { Cell, CompareCell, LocationCell, Modes, ResetGuesses, WinBanner, ResetPuzzle } from './HintCells';
+import { useSearchParams } from 'react-router';
 
 export default function LinesGame({ mode }: { mode: GameMode }) {
-  const game = useGameState('lines', mode, getLineOptions, guessLine, guessRandomLine);
+  const [searchParams] = useSearchParams();
+  const continent = toContinent(searchParams.get('continent'));
+  const game = useGameState('lines', mode, getLineOptions, guessLine, guessRandomLine, continent);
 
   if (!game.ready) {
     if (game.error) return <p>{game.error}</p>;

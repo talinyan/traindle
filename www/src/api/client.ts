@@ -1,4 +1,5 @@
 import type {
+  Continent,
   DailyPuzzle,
   GameKind,
   GameLine,
@@ -25,8 +26,10 @@ const post = (body: unknown): RequestInit => ({
 });
 
 // Every playable option for autocomplete
-export const getSystemOptions = () => request<GameSystemOption[]>('/gamedata/systems/options');
-export const getLineOptions = () => request<GameLineOption[]>('/gamedata/lines/options');
+export const getSystemOptions = async (continent: Continent | null = null) =>
+  request<GameSystemOption[]>(`/gamedata/systems/options${continent ? `?continent=${continent}` : ''}`);
+export const getLineOptions = async (continent: Continent | null = null) =>
+  request<GameLineOption[]>(`/gamedata/lines/options${continent ? `?continent=${continent}` : ''}`);
 
 // Daily
 export const getDaily = (game: GameKind, date: string) => request<DailyPuzzle>(`/dailygame/${game}/daily?date=${date}`);
@@ -42,7 +45,8 @@ export const revealSystem = (date: string) => request<GameSystem>(`/dailygame/sy
 export const revealLine = (date: string) => request<GameLine>(`/dailygame/lines/reveal?date=${date}`);
 
 // Random
-export const getRandom = (game: GameKind) => request<RandomPuzzle>(`/randomgame/${game}/random`);
+export const getRandom = (game: GameKind, continent: Continent | null = null) =>
+  request<RandomPuzzle>(`/randomgame/${game}/random${continent ? `?continent=${continent}` : ''}`);
 
 export const guessRandomSystem = (answerId: number, systemId: number) =>
   request<SystemGuess>('/randomgame/systems/guess', post({ answerId, systemId }));
