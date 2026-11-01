@@ -32,7 +32,7 @@ export const updates: Update[] = [
       },
       {
         title: 'Endless mode regenerate or reset',
-        items: ['On endless mode, can now either regenerate or reset the guesses to try again! ']
+        items: ['On endless mode, can now either regenerate or reset the guesses to try again!']
       }
     ]
   },
