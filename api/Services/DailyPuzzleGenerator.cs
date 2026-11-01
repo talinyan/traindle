@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Traindle.Data;
 
 namespace Traindle.Services;
@@ -26,35 +26,39 @@ public class DailyPuzzleGenerationService
     {
       for (var date = today.AddDays(-1); date <= today.AddDays(DaysAhead); date = date.AddDays(1))
       {
-        if (await _db.DailyPuzzles.AnyAsync(p => p.Game == game && p.Date == date, ct))
-          continue;
+        foreach (var continent in Enum.GetValues<Continent>())   // includes Global
+        {
+          if (await _db.DailyPuzzles.AnyAsync(
+                  p => p.Game == game && p.Date == date && p.Continent == continent, ct))
+            continue;
 
-        if (await CreatePuzzleAsync(game, date, ct))
-          created++;
+          if (await CreatePuzzleAsync(game, date, continent, ct))
+            created++;
+        }
       }
     }
 
     return created;
   }
 
-  private async Task<bool> CreatePuzzleAsync(GameKind game, DateOnly date, CancellationToken ct)
+  private async Task<bool> CreatePuzzleAsync(GameKind game, DateOnly date, Continent continent, CancellationToken ct)
   {
     // Avoid repeating recent answers
     var since = date.AddDays(-NoRepeatDays);
     var recent = await _db.DailyPuzzles
-        .Where(p => p.Game == game && p.Date >= since)
+        .Where(p => p.Game == game && p.Continent == continent && p.Date >= since)
         .Select(p => p.TargetId)
         .ToListAsync(ct);
 
-    var targetId = await _db.PickRandomTargetIdAsync(game, null, recent, ct)
-                   ?? await _db.PickRandomTargetIdAsync(game, null, [], ct);
+    var targetId = await _db.PickRandomTargetIdAsync(game, continent, recent, ct)
+                   ?? await _db.PickRandomTargetIdAsync(game, continent, [], ct);
     if (targetId is null)
     {
-      _logger.LogError("No {Game} available to create the {Date} puzzle", game, date);
+      _logger.LogError("No {Game} available to create the {Continent} {Date} puzzle", game, continent, date);
       return false;
     }
 
-    _db.DailyPuzzles.Add(new DailyPuzzle { Game = game, Date = date, TargetId = targetId.Value });
+    _db.DailyPuzzles.Add(new DailyPuzzle { Game = game, Date = date, TargetId = targetId.Value, Continent = continent });
     try
     {
       await _db.SaveChangesAsync(ct);
@@ -65,7 +69,7 @@ public class DailyPuzzleGenerationService
       return false;
     }
 
-    _logger.LogInformation("Created {Game} puzzle for {Date}: {TargetId}", game, date, targetId);
+    _logger.LogInformation("Created {Continent} {Game} puzzle for {Date}: {TargetId}", continent, game, date, targetId);
     return true;
   }
 }

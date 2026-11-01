@@ -73,11 +73,15 @@ namespace api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("game");
 
+                    b.Property<int>("Continent")
+                        .HasColumnType("integer")
+                        .HasColumnName("continent");
+
                     b.Property<int>("TargetId")
                         .HasColumnType("integer")
                         .HasColumnName("target_id");
 
-                    b.HasKey("Date", "Game")
+                    b.HasKey("Date", "Game", "Continent")
                         .HasName("pk_daily_puzzles");
 
                     b.ToTable("daily_puzzles", (string)null);
@@ -95,6 +99,10 @@ namespace api.Migrations
                     b.Property<int?>("AnswerId")
                         .HasColumnType("integer")
                         .HasColumnName("answer_id");
+
+                    b.Property<int?>("Continent")
+                        .HasColumnType("integer")
+                        .HasColumnName("continent");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")

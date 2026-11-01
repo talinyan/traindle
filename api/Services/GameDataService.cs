@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Traindle.Data;
 
 namespace Traindle.Services;
@@ -149,7 +149,7 @@ public partial class GameDataService
   public Task<List<GameSystemOption>> GetGameSystemOptionsAsync(Continent? continent) =>
     _db.GameSystems
       .OrderBy(s => s.Name)
-      .Where(s => continent == null || s.Continent == continent)
+      .WhereContinent(continent)
       .Select(s => new GameSystemOption(
           s.Id, s.Name, s.City, s.Country, s.Continent,
           s.Modes, s.LineCount, s.StationCount, s.Length, s.OpeningYear))
@@ -158,7 +158,7 @@ public partial class GameDataService
   public Task<List<GameLineOption>> GetGameLineOptionsAsync(Continent? continent) =>
     _db.GameLines
       .OrderBy(l => l.Name)
-      .Where(l => continent == null || l.System != null && l.System.Continent == continent)
+      .WhereContinent(continent)
       .Select(l => new GameLineOption(
           l.Id, l.Name, l.Colour, l.Mode, l.StationCount, l.Length, l.OpeningYear,
           l.SystemId, l.System!.Name, l.System.City, l.System.Country, l.System.Continent))

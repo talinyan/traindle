@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
@@ -84,18 +84,25 @@ public static partial class GameExtensions
     return (lat, lng);
   }
 
+  // Null and Global both mean "every continent"
+  public static IQueryable<GameSystem> WhereContinent(this IQueryable<GameSystem> systems, Continent? continent) =>
+    continent is null or Continent.Global ? systems : systems.Where(s => s.Continent == continent);
+
+  public static IQueryable<GameLine> WhereContinent(this IQueryable<GameLine> lines, Continent? continent) =>
+    continent is null or Continent.Global ? lines : lines.Where(l => l.System != null && l.System.Continent == continent);
+
   public static Task<int?> PickRandomTargetIdAsync(
       this PostgresContext db, GameKind game, Continent? continent, IReadOnlyCollection<int> exclude, CancellationToken ct = default) =>
     game == GameKind.Systems
       ? db.GameSystems
           .Where(s => !exclude.Contains(s.Id))
-          .Where(s => continent == null || s.Continent == continent)
+          .WhereContinent(continent)
           .OrderBy(_ => EF.Functions.Random())
           .Select(s => (int?)s.Id)
           .FirstOrDefaultAsync(ct)
       : db.GameLines
           .Where(l => !exclude.Contains(l.Id))
-          .Where(l => continent == null || l.System != null && l.System.Continent == continent)
+          .WhereContinent(continent)
           .OrderBy(_ => EF.Functions.Random())
           .Select(l => (int?)l.Id)
           .FirstOrDefaultAsync(ct);

@@ -77,19 +77,26 @@ export default function Home() {
     setSearchParams(value ? { continent: value } : {}, { replace: true, preventScrollReset: true });
 
   const query = continent ? `?continent=${continent}` : '';
+  const regionLabel = CONTINENTS.find((c) => c.value === continent)?.label;
 
   return (
     <div className='flex flex-col gap-10'>
       <section className='flex flex-col gap-3'>
+        <h2 className='text-xl font-semibold'>Region</h2>
+        <RegionPicker value={continent} onChange={setContinent} />
+      </section>
+
+      <section className='flex flex-col gap-3'>
         <h2 className='text-xl font-semibold'>Daily</h2>
-        <p className='text-sm text-secondary'>One puzzle per day - the same for everyone.</p>
-        <ModeCards kind='daily' />
+        <p className='text-sm text-secondary'>
+          One puzzle per day{regionLabel ? ` in ${regionLabel}` : ''} - the same for everyone.
+        </p>
+        <ModeCards kind='daily' query={query} />
       </section>
 
       <section className='flex flex-col gap-3'>
         <h2 className='text-xl font-semibold'>Endless</h2>
         <p className='text-sm text-secondary'>Random puzzles, as many as you like!</p>
-        <RegionPicker value={continent} onChange={setContinent} />
         <ModeCards kind='endless' query={query} />
       </section>
     </div>

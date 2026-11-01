@@ -20,11 +20,11 @@ public class RandomGameService
     var id = await _db.PickRandomTargetIdAsync(game, continent, []);
     if (id is null)
     {
-      await _tracking.ErrorAsync(nameof(GetRandomPuzzleAsync), new { reason = "NoTargetId", game });
+      await _tracking.ErrorAsync(nameof(GetRandomPuzzleAsync), new { reason = "NoTargetId", game, continent });
       return null;
     }
 
-    await _tracking.FetchAsync(game, null, (int)id);
+    await _tracking.FetchAsync(game, null, continent, (int)id);
     return new RandomPuzzleResponse(game, (int)id);
   }
 
@@ -40,7 +40,7 @@ public class RandomGameService
 
     var guess = await _gameData.GuessSystemAsync(guessId, answer);
     if (guess != null)
-      await _tracking.GuessAsync(GameKind.Systems, null, guessId, answer.Id);
+      await _tracking.GuessAsync(GameKind.Systems, null, null, guessId, answer.Id);
 
     return guess;
   }
@@ -57,7 +57,7 @@ public class RandomGameService
 
     var guess = await _gameData.GuessLineAsync(guessId, answer);
     if (guess != null)
-      await _tracking.GuessAsync(GameKind.Lines, null, guessId, answer.Id);
+      await _tracking.GuessAsync(GameKind.Lines, null, null, guessId, answer.Id);
 
     return guess;
   }

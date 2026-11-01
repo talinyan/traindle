@@ -31,18 +31,23 @@ export const getSystemOptions = async (continent: Continent | null = null) =>
 export const getLineOptions = async (continent: Continent | null = null) =>
   request<GameLineOption[]>(`/gamedata/lines/options${continent ? `?continent=${continent}` : ''}`);
 
-// Daily
-export const getDaily = (game: GameKind, date: string) => request<DailyPuzzle>(`/dailygame/${game}/daily?date=${date}`);
+// Daily (no continent = the global puzzle)
+const continentParam = (continent: Continent | null) => (continent ? `&continent=${continent}` : '');
 
-export const guessSystem = (date: string, systemId: number) =>
-  request<SystemGuess>('/dailygame/systems/guess', post({ date, systemId }));
+export const getDaily = (game: GameKind, date: string, continent: Continent | null = null) =>
+  request<DailyPuzzle>(`/dailygame/${game}/daily?date=${date}${continentParam(continent)}`);
 
-export const guessLine = (date: string, lineId: number) =>
-  request<LineGuess>('/dailygame/lines/guess', post({ date, lineId }));
+export const guessSystem = (date: string, continent: Continent | null, systemId: number) =>
+  request<SystemGuess>('/dailygame/systems/guess', post({ date, continent, systemId }));
 
-export const revealSystem = (date: string) => request<GameSystem>(`/dailygame/systems/reveal?date=${date}`);
+export const guessLine = (date: string, continent: Continent | null, lineId: number) =>
+  request<LineGuess>('/dailygame/lines/guess', post({ date, continent, lineId }));
 
-export const revealLine = (date: string) => request<GameLine>(`/dailygame/lines/reveal?date=${date}`);
+export const revealSystem = (date: string, continent: Continent | null = null) =>
+  request<GameSystem>(`/dailygame/systems/reveal?date=${date}${continentParam(continent)}`);
+
+export const revealLine = (date: string, continent: Continent | null = null) =>
+  request<GameLine>(`/dailygame/lines/reveal?date=${date}${continentParam(continent)}`);
 
 // Random
 export const getRandom = (game: GameKind, continent: Continent | null = null) =>

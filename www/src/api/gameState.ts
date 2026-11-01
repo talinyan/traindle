@@ -13,15 +13,17 @@ interface RandomSave<TGuess> {
   guesses: TGuess[];
 }
 
-const getStorageKey = (game: GameKind, date: string) => 'traindle:' + game + ':' + date;
+// Daily saves are per continent too; Global keeps the original key
+const getStorageKey = (game: GameKind, date: string, continent: Continent | null) =>
+  'traindle:' + game + ':' + date + (continent ? ':' + continent : '');
 // Endless saves are per continent so switching region doesn't reuse another region's answer
 const getRandomStorageKey = (game: GameKind, continent: Continent | null) =>
   'traindle:random:' + game + (continent ? ':' + continent : '');
 const getTodaysDate = () => new Date().toLocaleDateString('en-CA');
 
-const loadGuesses = <TGuess>(game: GameKind, date: string): TGuess[] => {
+const loadGuesses = <TGuess>(game: GameKind, date: string, continent: Continent | null): TGuess[] => {
   try {
-    const text = localStorage.getItem(getStorageKey(game, date));
+    const text = localStorage.getItem(getStorageKey(game, date, continent));
     if (text === null) {
       return [];
     }
@@ -37,9 +39,9 @@ const loadGuesses = <TGuess>(game: GameKind, date: string): TGuess[] => {
   }
 };
 
-const saveGuesses = <TGuess>(game: GameKind, date: string, guesses: TGuess[]) => {
+const saveGuesses = <TGuess>(game: GameKind, date: string, continent: Continent | null, guesses: TGuess[]) => {
   try {
-    localStorage.setItem(getStorageKey(game, date), JSON.stringify(guesses));
+    localStorage.setItem(getStorageKey(game, date, continent), JSON.stringify(guesses));
   } catch {}
 };
 
@@ -77,7 +79,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
   game: GameKind,
   mode: GameMode,
   loadOptions: (continent: Continent | null) => Promise<TOption[]>,
-  guessDaily: (date: string, id: number) => Promise<TGuess>,
+  guessDaily: (date: string, continent: Continent | null, id: number) => Promise<TGuess>,
   guessRandom: (answerId: number, id: number) => Promise<TGuess>,
   continent: Continent | null
 ) => {
@@ -87,7 +89,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     mode === 'random' ? (loadRandom<TGuess>(game, continent)?.answerId ?? null) : null
   );
   const [guesses, setGuesses] = useState<TGuess[]>(() =>
-    mode === 'random' ? (loadRandom<TGuess>(game, continent)?.guesses ?? []) : loadGuesses<TGuess>(game, date)
+    mode === 'random' ? (loadRandom<TGuess>(game, continent)?.guesses ?? []) : loadGuesses<TGuess>(game, date, continent)
   );
   const [puzzleNumber, setPuzzleNumber] = useState<number | null>(null);
   const [options, setOptions] = useState<TOption[] | null>(null);
@@ -98,7 +100,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
   // Every time the guesses change: save them
   useEffect(() => {
     if (mode === 'daily') {
-      saveGuesses(game, date, guesses);
+      saveGuesses(game, date, continent, guesses);
     } else if (answerId !== null) {
       saveRandom(game, continent, { answerId, guesses });
     }
@@ -116,8 +118,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
 
     const load = async () => {
       try {
-        // The daily answer is global, so only filter options in endless
-        const loadedOptions = await loadOptions(mode === 'daily' ? null : continent);
+        const loadedOptions = await loadOptions(continent);
         if (cancelled) return;
 
         setOptions(loadedOptions);
@@ -133,7 +134,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     return () => {
       cancelled = true;
     };
-  }, [loadOptions, mode, continent]);
+  }, [loadOptions, continent]);
 
   // On page load (and after newPuzzle in endless): fetch the puzzle
   useEffect(() => {
@@ -142,7 +143,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     const load = async () => {
       try {
         if (mode === 'daily') {
-          const loadedPuzzle = await getDaily(game, date);
+          const loadedPuzzle = await getDaily(game, date, continent);
           if (cancelled) return;
 
           setPuzzleNumber(loadedPuzzle.puzzleNumber);
@@ -184,7 +185,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     setError(null);
 
     try {
-      const newGuess = mode === 'daily' ? await guessDaily(date, id) : await guessRandom(answerId!, id);
+      const newGuess = mode === 'daily' ? await guessDaily(date, continent, id) : await guessRandom(answerId!, id);
       if (!guesses.some((g) => g.guessId === newGuess.guessId)) {
         setGuesses([...guesses, newGuess]);
       }
@@ -206,7 +207,7 @@ export const useGameState = <TOption, TGuess extends BaseGuess>(
     title = 'Endless';
   }
 
-  if (continent) title += ` (${readableContinent(continent)})`;
+  if (title !== null && continent) title += ` (${readableContinent(continent)})`;
 
   return {
     ready: title !== null && options !== null,

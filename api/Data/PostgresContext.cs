@@ -141,7 +141,7 @@ public class PostgresContext : DbContext
     b.Entity<DailyPuzzle>(e =>
     {
       e.ToTable("daily_puzzles");
-      e.HasKey(p => new { p.Date, p.Game });
+      e.HasKey(p => new { p.Date, p.Game, p.Continent });
       e.Property(p => p.Game).HasConversion<string>();
     });
 

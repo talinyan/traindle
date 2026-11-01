@@ -39,7 +39,7 @@ public class GameLine
 
 public enum GameKind { Systems, Lines }
 
-public enum Continent { NorthAmerica, SouthAmerica, Asia, Europe, Africa, Oceania }
+public enum Continent { NorthAmerica, SouthAmerica, Asia, Europe, Africa, Oceania, Global }
 
 // The answer for a game per day
 public class DailyPuzzle
@@ -47,6 +47,7 @@ public class DailyPuzzle
   public DateOnly Date { get; set; }
   public GameKind Game { get; set; }
   public int TargetId { get; set; }
+  public Continent Continent { get; set; }
 }
 public record DailyPuzzleResponse(DateOnly Date, int PuzzleNumber);
 
@@ -88,10 +89,10 @@ public record GameLineOption(
     int Id, string Name, string? Colour, string Mode, int StationCount, int Length,
     int OpeningYear, int SystemId, string SystemName, string City, string? Country, Continent? Continent);
 
-public record SystemDailyGuessRequest(DateOnly Date, int SystemId);
+public record SystemDailyGuessRequest(DateOnly Date, Continent? Continent, int SystemId);
 public record SystemRandomGuessRequest(int AnswerId, int SystemId);
 
-public record LineDailyGuessRequest(DateOnly Date, int LineId);
+public record LineDailyGuessRequest(DateOnly Date, Continent? Continent, int LineId);
 public record LineRandomGuessRequest(int AnswerId, int LineId);
 
 // DistanceKm/Bearing are null when either city has no coordinates; Bearing is degrees clockwise from north, guess -> answer

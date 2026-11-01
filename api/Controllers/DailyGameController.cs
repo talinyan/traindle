@@ -16,28 +16,28 @@ public class DailyGameController : ControllerBase
   private readonly DailyGameService _daily;
 
   [HttpGet("systems/daily")]
-  public async Task<IActionResult> GetDailySystem(DateOnly date) =>
-      OkOrNotFound(await _daily.GetDailyAsync(GameKind.Systems, date));
+  public async Task<IActionResult> GetDailySystem(DateOnly date, Continent? continent) =>
+      OkOrNotFound(await _daily.GetDailyAsync(GameKind.Systems, date, continent));
 
   [HttpPost("systems/guess")]
   public async Task<IActionResult> GuessSystem(SystemDailyGuessRequest req) =>
-      OkOrNotFound(await _daily.GuessSystemAsync(req.Date, req.SystemId));
+      OkOrNotFound(await _daily.GuessSystemAsync(req.Date, req.Continent, req.SystemId));
 
   [HttpGet("systems/reveal")]
-  public async Task<IActionResult> RevealSystem(DateOnly date) =>
-      OkOrNotFound(await _daily.RevealSystemAsync(date));
+  public async Task<IActionResult> RevealSystem(DateOnly date, Continent? continent) =>
+      OkOrNotFound(await _daily.RevealSystemAsync(date, continent));
 
   [HttpGet("lines/daily")]
-  public async Task<IActionResult> GetDailyLine(DateOnly date) =>
-      OkOrNotFound(await _daily.GetDailyAsync(GameKind.Lines, date));
+  public async Task<IActionResult> GetDailyLine(DateOnly date, Continent? continent) =>
+      OkOrNotFound(await _daily.GetDailyAsync(GameKind.Lines, date, continent));
 
   [HttpPost("lines/guess")]
   public async Task<IActionResult> GuessLine(LineDailyGuessRequest req) =>
-      OkOrNotFound(await _daily.GuessLineAsync(req.Date, req.LineId));
+      OkOrNotFound(await _daily.GuessLineAsync(req.Date, req.Continent, req.LineId));
 
   [HttpGet("lines/reveal")]
-  public async Task<IActionResult> RevealLine(DateOnly date) =>
-      OkOrNotFound(await _daily.RevealLineAsync(date));
+  public async Task<IActionResult> RevealLine(DateOnly date, Continent? continent) =>
+      OkOrNotFound(await _daily.RevealLineAsync(date, continent));
 
   private IActionResult OkOrNotFound(object? result) => result == null ? NotFound() : Ok(result);
 }
