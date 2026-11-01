@@ -6,6 +6,15 @@ interface Update {
 // newest first
 export const updates: Update[] = [
   {
+    date: '2026-10-31',
+    changes: [
+      {
+        title: 'Added continent option to Daily puzzles',
+        items: ["Select which continent you'd like to guess! Now for both modes :)"]
+      }
+    ]
+  },
+  {
     date: '2026-10-29',
     changes: [
       {
