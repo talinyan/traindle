@@ -1,6 +1,6 @@
 # Traindle
  
-A Wordle-style daily puzzle for transit fans. Guess a city's rail network, or a single line, using hints about where it is, how big it is, and how old it is.
+A Wordle-style daily puzzle for transit fans. Guess a city's rail network, or a single line, using hints about where it is, how big it is, how old it is, and modes of transportation.
  
 **Play it at [traindle.talinya.ca](https://traindle.talinya.ca)**
 
